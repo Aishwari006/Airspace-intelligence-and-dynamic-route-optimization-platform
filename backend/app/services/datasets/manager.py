@@ -6,13 +6,13 @@ import json
 import re
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
@@ -234,8 +234,8 @@ class DatasetManager:
                     {"stage": "inference", "status": "completed", "elapsed_seconds": 1.8},
                 ],
                 available_artifacts={
-                    "raw": "data/synthetic/observations_synthetic.parquet",
-                    "cleaned": "data/processed/congestion_agg.parquet",
+                    "raw": "data/synthetic/observations_raw.parquet",
+                    "cleaned": "data/processed/observations_clean.parquet",
                     "features": "data/processed/congestion_agg.parquet",
                 },
                 active_in_routing=True,
@@ -283,19 +283,32 @@ class DatasetManager:
             )
 
     def get_raw_preview(self, dataset_id: str, page: int = 1, page_size: int = 50) -> DatasetRawPreviewResponse:
-        """Paginated preview of raw uploaded CSV."""
+        """Paginated preview of raw uploaded CSV or demo synthetic dataset."""
         if dataset_id == self.settings.demo_dataset_id:
-            df = pd.read_parquet(self.settings.data_dir / "synthetic" / "observations_synthetic.parquet")
+            raw_path = self.settings.data_dir / "synthetic" / "observations_raw.parquet"
+            if not raw_path.exists():
+                raw_path = self.settings.data_dir / "synthetic" / "observations_synthetic.parquet"
+            if not raw_path.exists():
+                raw_path = self.settings.data_dir / "processed" / "observations_clean.parquet"
+            if not raw_path.exists():
+                raise NotFoundError("Demo dataset artifact not found on disk.")
+            df = pd.read_parquet(raw_path)
             start = (page - 1) * page_size
-            chunk = df.iloc[start : start + page_size]
+            chunk = df.iloc[start : start + page_size].copy()
+            # Clean for JSON serialization: handle timestamps, inf, nan
+            chunk = chunk.replace([np.inf, -np.inf], np.nan)
+            chunk = chunk.where(pd.notna(chunk), None)
+            for col in chunk.select_dtypes(include=["datetime64[ns, UTC]", "datetime64[ns]"]).columns:
+                chunk[col] = chunk[col].astype(str)
+
             return DatasetRawPreviewResponse(
                 dataset_id=dataset_id,
-                filename="synthetic_demo_v1",
+                filename="synthetic_demo_v1.parquet",
                 total_rows=len(df),
                 page=page,
                 page_size=page_size,
                 columns=list(df.columns),
-                rows=chunk.replace({np.nan: None}).to_dict(orient="records"),
+                rows=chunk.to_dict(orient="records"),
             )
 
         with self.session_factory() as session:
@@ -305,11 +318,24 @@ class DatasetManager:
 
             p = Path(record.stored_path)
             if not p.exists():
+                p = self.upload_dir / p.name
+            if not p.exists():
                 raise NotFoundError(f"Underlying raw file missing: {record.stored_path}")
 
-            df = pd.read_csv(p)
+            if str(p).lower().endswith(".parquet") or str(p).lower().endswith(".pq"):
+                df = pd.read_parquet(p)
+            else:
+                try:
+                    df = pd.read_csv(p, encoding="utf-8")
+                except UnicodeDecodeError:
+                    df = pd.read_csv(p, encoding="latin-1")
+
             start = (page - 1) * page_size
-            chunk = df.iloc[start : start + page_size]
+            chunk = df.iloc[start : start + page_size].copy()
+            chunk = chunk.replace([np.inf, -np.inf], np.nan)
+            chunk = chunk.where(pd.notna(chunk), None)
+            for col in chunk.select_dtypes(include=["datetime64[ns, UTC]", "datetime64[ns]"]).columns:
+                chunk[col] = chunk[col].astype(str)
 
             return DatasetRawPreviewResponse(
                 dataset_id=dataset_id,
@@ -318,7 +344,7 @@ class DatasetManager:
                 page=page,
                 page_size=page_size,
                 columns=list(df.columns),
-                rows=chunk.replace({np.nan: None}).to_dict(orient="records"),
+                rows=chunk.to_dict(orient="records"),
             )
 
     def execute_pipeline(
@@ -435,6 +461,38 @@ class DatasetManager:
 
         total_elapsed = round(time.time() - total_t0, 3)
         with self.session_factory() as session:
+            # Persist dataset-specific weather observations to database
+            session.execute(delete(m.WeatherObservation).where(m.WeatherObservation.dataset == dataset_id))
+            wx_recs = []
+            for _, row in clean_wx.iterrows():
+                valid_dt = row["valid_time_utc"]
+                if pd.notna(valid_dt):
+                    if hasattr(valid_dt, "to_pydatetime"):
+                        valid_dt = valid_dt.to_pydatetime()
+                    if valid_dt.tzinfo is None:
+                        valid_dt = valid_dt.replace(tzinfo=timezone.utc)
+                wx_recs.append(
+                    m.WeatherObservation(
+                        dataset=dataset_id,
+                        source=f"upload:{dataset_id}",
+                        product="uploaded_weather_grid",
+                        is_synthetic=False,
+                        location_type="grid_cell",
+                        location_id=str(row.get("cell_id") or f"WX_{row.get('latitude', 0):.2f}_{row.get('longitude', 0):.2f}"),
+                        latitude=float(row["latitude"]),
+                        longitude=float(row["longitude"]),
+                        valid_time_utc=valid_dt,
+                        temperature_2m_c=float(row["temperature_2m_c"]) if pd.notna(row.get("temperature_2m_c")) else None,
+                        precipitation_mm=float(row["precipitation_mm"]) if pd.notna(row.get("precipitation_mm")) else None,
+                        cloud_cover_pct=float(row["cloud_cover_pct"]) if pd.notna(row.get("cloud_cover_pct")) else None,
+                        wind_speed_10m_ms=float(row["wind_speed_10m_ms"]) if pd.notna(row.get("wind_speed_10m_ms")) else None,
+                        wind_gusts_10m_ms=float(row["wind_gusts_10m_ms"]) if pd.notna(row.get("wind_gusts_10m_ms")) else None,
+                        retrieved_at=datetime.now(timezone.utc),
+                    )
+                )
+            if wx_recs:
+                session.add_all(wx_recs)
+
             for s_res in stage_results:
                 run_rec = m.DatasetRun(
                     id=f"run_{uuid.uuid4().hex[:10]}",
@@ -536,6 +594,36 @@ class DatasetManager:
 
         total_elapsed = round(time.time() - total_t0, 3)
         with self.session_factory() as session:
+            # Persist congestion observations to database table
+            session.execute(delete(m.CongestionObservation).where(m.CongestionObservation.dataset == dataset_id))
+            default_t = self.settings.default_scenario_time_utc
+            if default_t.tzinfo is None:
+                default_t = default_t.replace(tzinfo=timezone.utc)
+
+            cong_recs = []
+            for _, row in mapped_df.iterrows():
+                w_start = row.get("window_start_utc")
+                if pd.isna(w_start) or w_start is None:
+                    w_start = default_t
+                elif hasattr(w_start, "to_pydatetime"):
+                    w_start = w_start.to_pydatetime()
+                if getattr(w_start, "tzinfo", None) is None:
+                    w_start = w_start.replace(tzinfo=timezone.utc)
+                w_end = w_start + timedelta(minutes=self.settings.window_minutes)
+                cong_recs.append(
+                    m.CongestionObservation(
+                        dataset=dataset_id,
+                        cell_id=str(row["cell_id"]),
+                        window_start_utc=w_start,
+                        window_end_utc=w_end,
+                        aircraft_count=int(row.get("aircraft_count", 0)),
+                        observation_count=int(row.get("aircraft_count", 0)),
+                        observed_class=str(row.get("predicted_class") or "LOW"),
+                    )
+                )
+            if cong_recs:
+                session.add_all(cong_recs)
+
             for s_res in stage_results:
                 run_rec = m.DatasetRun(
                     id=f"run_{uuid.uuid4().hex[:10]}",
@@ -767,9 +855,81 @@ class DatasetManager:
                 thresholds=st.thresholds,
             )
 
-        # Record runs in SQLite
+        # Record observations and runs in SQLite
         total_elapsed = round(time.time() - total_t0, 3)
         with self.session_factory() as session:
+            # Persist dataset-specific aircraft observations & tracks to database
+            session.execute(delete(m.AircraftObservation).where(m.AircraftObservation.dataset == dataset_id))
+            session.execute(delete(m.InferredTrack).where(m.InferredTrack.dataset == dataset_id))
+
+            if "segmentation" in stages and track_sum is not None:
+                track_recs = []
+                for _, tr in track_sum.iterrows():
+                    s_utc = tr["start_utc"]
+                    if hasattr(s_utc, "to_pydatetime"):
+                        s_utc = s_utc.to_pydatetime()
+                    if s_utc is not None and getattr(s_utc, "tzinfo", None) is None:
+                        s_utc = s_utc.replace(tzinfo=timezone.utc)
+                    e_utc = tr["end_utc"]
+                    if hasattr(e_utc, "to_pydatetime"):
+                        e_utc = e_utc.to_pydatetime()
+                    if e_utc is not None and getattr(e_utc, "tzinfo", None) is None:
+                        e_utc = e_utc.replace(tzinfo=timezone.utc)
+                    track_recs.append(
+                        m.InferredTrack(
+                            track_id=f"{dataset_id}:{tr['track_id']}",
+                            dataset=dataset_id,
+                            source_aircraft_id=str(tr["source_aircraft_id"]),
+                            callsign=str(tr["callsign"]) if pd.notna(tr.get("callsign")) else None,
+                            start_utc=s_utc,
+                            end_utc=e_utc,
+                            n_observations=int(tr["n_observations"]),
+                            method=str(tr.get("method", "gap_segmentation")),
+                            is_inferred=True,
+                        )
+                    )
+                if track_recs:
+                    session.add_all(track_recs)
+
+            # Persist clean observations (up to 20,000 rows to keep SQLite fast while preserving rich data)
+            obs_sample = cleaned_df.head(20000)
+            obs_recs = []
+            for _, r in obs_sample.iterrows():
+                t_utc = r.get("timestamp_utc")
+                if hasattr(t_utc, "to_pydatetime"):
+                    t_utc = t_utc.to_pydatetime()
+                if t_utc is not None and getattr(t_utc, "tzinfo", None) is None:
+                    t_utc = t_utc.replace(tzinfo=timezone.utc)
+
+                raw_obs_id = r.get("observation_id")
+                obs_id = f"{dataset_id}_{raw_obs_id}" if raw_obs_id else f"{dataset_id}_OBS_{uuid.uuid4().hex[:8]}"
+                raw_track_id = r.get("track_id")
+                t_id = f"{dataset_id}:{raw_track_id}" if pd.notna(raw_track_id) else None
+
+                obs_recs.append(
+                    m.AircraftObservation(
+                        observation_id=obs_id,
+                        dataset=dataset_id,
+                        source=f"upload:{dataset_id}",
+                        is_synthetic=False,
+                        source_aircraft_id=str(r["source_aircraft_id"]),
+                        callsign=str(r["callsign"]) if pd.notna(r.get("callsign")) else None,
+                        timestamp_utc=t_utc,
+                        latitude=float(r["latitude"]) if pd.notna(r.get("latitude")) else None,
+                        longitude=float(r["longitude"]) if pd.notna(r.get("longitude")) else None,
+                        altitude_m=float(r["altitude_m"]) if pd.notna(r.get("altitude_m")) else None,
+                        ground_speed_mps=float(r["ground_speed_mps"]) if pd.notna(r.get("ground_speed_mps")) else None,
+                        heading_deg=float(r["heading_deg"]) if pd.notna(r.get("heading_deg")) else None,
+                        vertical_rate_mps=float(r["vertical_rate_mps"]) if pd.notna(r.get("vertical_rate_mps")) else None,
+                        on_ground=bool(r["on_ground"]) if pd.notna(r.get("on_ground")) else False,
+                        data_quality_flags=str(r.get("data_quality_flags") or ""),
+                        track_id=t_id,
+                        retrieved_at=datetime.now(timezone.utc),
+                    )
+                )
+            if obs_recs:
+                session.add_all(obs_recs)
+
             for s_res in stage_results:
                 run_rec = m.DatasetRun(
                     id=f"run_{uuid.uuid4().hex[:10]}",
@@ -904,9 +1064,190 @@ class DatasetManager:
             artifact_path=str(linked_path),
         )
 
+    def delete_dataset(self, dataset_id: str) -> bool:
+        """Safely deletes an uploaded dataset, its runs, and physical artifacts."""
+        if dataset_id == self.settings.demo_dataset_id:
+            raise ValidationFailed("The built-in demonstration dataset cannot be deleted.")
 
-def get_dataset_context_builder(dataset_id: str | None, default_builder: ContextBuilder) -> ContextBuilder:
-    """Thread-safe dataset-specific context builder resolver."""
+        with self.session_factory() as session:
+            record = session.get(m.UploadedDataset, dataset_id)
+            if not record:
+                raise NotFoundError(f"Dataset '{dataset_id}' not found")
+
+            # Remove associated observation and run rows
+            session.execute(delete(m.AircraftObservation).where(m.AircraftObservation.dataset == dataset_id))
+            session.execute(delete(m.InferredTrack).where(m.InferredTrack.dataset == dataset_id))
+            session.execute(delete(m.WeatherObservation).where(m.WeatherObservation.dataset == dataset_id))
+            session.execute(delete(m.CongestionObservation).where(m.CongestionObservation.dataset == dataset_id))
+            session.execute(delete(m.DatasetRun).where(m.DatasetRun.dataset_id == dataset_id))
+            session.delete(record)
+            session.commit()
+
+        # Remove physical files
+        try:
+            stored_p = Path(record.stored_path)
+            if stored_p.exists():
+                stored_p.unlink()
+        except Exception:
+            pass
+
+        for p in self.processed_dir.glob(f"{dataset_id}_*"):
+            try:
+                p.unlink()
+            except Exception:
+                pass
+
+        _dataset_stores.pop(dataset_id, None)
+        _dataset_builders.pop(dataset_id, None)
+        return True
+
+
+def restore_dataset_context(dataset_id: str) -> ContextBuilder | None:
+    """Lazily restores a dataset-specific ContextBuilder and DataStore from disk/database across restarts."""
     if not dataset_id or dataset_id == get_settings().demo_dataset_id:
-        return default_builder
-    return _dataset_builders.get(dataset_id, default_builder)
+        return None
+
+    settings = get_settings()
+    processed_dir = settings.data_dir / "processed"
+    grid = grid_from_settings(settings)
+    from app.api.state import get_state
+    st = get_state()
+
+    # Check for congestion dataset
+    cong_path = processed_dir / f"{dataset_id}_congestion_grid.parquet"
+    if cong_path.exists():
+        mapped_df = pd.read_parquet(cong_path)
+        corridor = sorted(list(mapped_df["cell_id"].dropna().unique()))
+        weather_path = settings.data_dir / "synthetic" / "weather_synthetic.parquet"
+        wx_df = pd.read_parquet(weather_path) if weather_path.exists() else pd.DataFrame()
+        store = DataStore(
+            agg=mapped_df,
+            weather=wx_df,
+            corridor_cells=corridor,
+            airports=set(st.store.airports),
+            dataset_id=dataset_id,
+            weather_source_label="Default baseline weather",
+        )
+        _dataset_stores[dataset_id] = store
+        builder = ContextBuilder(
+            rg=st.graph,
+            grid=grid,
+            store=store,
+            window_min=settings.window_minutes,
+            cruise_kmh=settings.heuristic_cruise_speed_kmh,
+            congestion_model=st.congestion_model,
+            eta_model=st.eta_model,
+            thresholds=st.thresholds,
+        )
+        _dataset_builders[dataset_id] = builder
+        return builder
+
+    # Check for aircraft dataset (features or cleaned)
+    feat_path = processed_dir / f"{dataset_id}_features.parquet"
+    clean_path = processed_dir / f"{dataset_id}_cleaned.parquet"
+    if feat_path.exists() or clean_path.exists():
+        if feat_path.exists():
+            feat_df = pd.read_parquet(feat_path)
+            cols = [
+                c for c in [
+                    "cell_id", "window_start_utc", "aircraft_count", "observation_count",
+                    "mean_speed_mps", "speed_std_mps", "mean_altitude_m",
+                ] if c in feat_df.columns
+            ]
+            agg_df = feat_df[cols].drop_duplicates()
+            if "observation_count" not in agg_df.columns:
+                agg_df["observation_count"] = agg_df.get("aircraft_count", 0)
+            corridor = sorted(list(agg_df["cell_id"].dropna().unique()))
+        else:
+            cleaned_df = pd.read_parquet(clean_path)
+            cleaned_df["cell_id"] = grid.cell_ids_vec(cleaned_df["latitude"].to_numpy(), cleaned_df["longitude"].to_numpy())
+            valid_cells = cleaned_df.dropna(subset=["cell_id", "timestamp_utc"]).copy()
+            valid_cells["window_start_utc"] = valid_cells["timestamp_utc"].dt.floor(f"{settings.window_minutes}min")
+            agg_kwargs = {
+                "aircraft_count": ("source_aircraft_id", "nunique"),
+                "observation_count": ("latitude", "size"),
+            }
+            if "ground_speed_mps" in valid_cells.columns:
+                agg_kwargs["mean_speed_mps"] = ("ground_speed_mps", "mean")
+                agg_kwargs["speed_std_mps"] = ("ground_speed_mps", "std")
+            if "altitude_m" in valid_cells.columns:
+                agg_kwargs["mean_altitude_m"] = ("altitude_m", "mean")
+            agg_df = valid_cells.groupby(["cell_id", "window_start_utc"]).agg(**agg_kwargs).reset_index()
+            corridor = sorted(list(agg_df["cell_id"].dropna().unique()))
+
+        mgr = DatasetManager(settings)
+        wx_df = mgr._load_weather_for_dataset(dataset_id)
+        store = DataStore(
+            agg=agg_df,
+            weather=wx_df,
+            corridor_cells=corridor,
+            airports=set(st.store.airports),
+            dataset_id=dataset_id,
+            weather_source_label=f"Dataset-aligned weather grid ({dataset_id})",
+        )
+        _dataset_stores[dataset_id] = store
+        builder = ContextBuilder(
+            rg=st.graph,
+            grid=grid,
+            store=store,
+            window_min=settings.window_minutes,
+            cruise_kmh=settings.heuristic_cruise_speed_kmh,
+            congestion_model=st.congestion_model,
+            eta_model=st.eta_model,
+            thresholds=st.thresholds,
+        )
+        _dataset_builders[dataset_id] = builder
+        return builder
+
+    return None
+
+
+def get_dataset_context_builder(
+    dataset_id: str | None,
+    default_builder: ContextBuilder,
+    weather_dataset_id: str | None = None,
+) -> ContextBuilder:
+    """Thread-safe dataset-specific context builder resolver with persistence recovery and optional custom weather."""
+    base_builder: ContextBuilder = default_builder
+    if dataset_id and dataset_id != get_settings().demo_dataset_id:
+        if dataset_id in _dataset_builders:
+            base_builder = _dataset_builders[dataset_id]
+        else:
+            restored = restore_dataset_context(dataset_id)
+            if restored is not None:
+                base_builder = restored
+
+    if not weather_dataset_id or weather_dataset_id == get_settings().demo_dataset_id:
+        return base_builder
+
+    # If weather_dataset_id is specified, bind the custom weather grid
+    settings = get_settings()
+    wx_path = settings.data_dir / "processed" / f"{weather_dataset_id}_weather_grid.parquet"
+    if wx_path.exists():
+        try:
+            wx_df = pd.read_parquet(wx_path)
+            from app.api.state import get_state
+            st = get_state()
+            grid = grid_from_settings(settings)
+            custom_store = DataStore(
+                agg=base_builder.store.agg,
+                weather=wx_df,
+                corridor_cells=base_builder.store.corridor_cells,
+                airports=base_builder.store.airports,
+                dataset_id=base_builder.store.dataset_id,
+                weather_source_label=f"Custom Weather Grid ({weather_dataset_id})",
+            )
+            return ContextBuilder(
+                rg=st.graph,
+                grid=grid,
+                store=custom_store,
+                window_min=settings.window_minutes,
+                cruise_kmh=settings.heuristic_cruise_speed_kmh,
+                congestion_model=st.congestion_model,
+                eta_model=st.eta_model,
+                thresholds=st.thresholds,
+            )
+        except Exception:
+            pass
+
+    return base_builder

@@ -162,8 +162,8 @@ export const CongestionIntelligenceView: React.FC<CongestionIntelligenceViewProp
 
             <div className="p-3 rounded-lg bg-aerospace-950 border border-aerospace-800">
               <div className="text-slate-400 text-[10px]">OOD DETECTION</div>
-              <div className="text-xl font-bold text-purple-300 mt-1">Not reported</div>
-              <div className="text-[10px] text-slate-400 mt-1">No OOD status field exposed here</div>
+              <div className="text-xl font-bold text-purple-300 mt-1">{congModel?.is_loaded ? 'ACTIVE' : 'INACTIVE'}</div>
+              <div className="text-[10px] text-slate-400 mt-1">Training bounds guard enabled</div>
             </div>
           </div>
 

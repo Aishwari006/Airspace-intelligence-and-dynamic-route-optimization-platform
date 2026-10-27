@@ -30,6 +30,8 @@ interface RouteLabViewProps {
   congestionCells?: any[];
   activeDatasetId?: string;
   onSelectDataset?: (id: string) => void;
+  initialOrigin?: string;
+  initialDestination?: string;
 }
 
 export const RouteLabView: React.FC<RouteLabViewProps> = ({
@@ -38,18 +40,22 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
   congestionCells = [],
   activeDatasetId = 'synthetic_demo_v1',
   onSelectDataset,
+  initialOrigin,
+  initialDestination,
 }) => {
   const [mapMode, setMapMode] = useState<'2d' | '3d'>('3d');
-  const [origin, setOrigin] = useState<string>('VIDP');
-  const [destination, setDestination] = useState<string>('VABB');
+  const [origin, setOrigin] = useState<string>(initialOrigin || 'VIDP');
+  const [destination, setDestination] = useState<string>(initialDestination || 'VABB');
   const [algorithm, setAlgorithm] = useState<'dijkstra' | 'astar'>('dijkstra');
   const [objective, setObjective] = useState<string>('balanced');
   
   // Available datasets
   const [availableDatasets, setAvailableDatasets] = useState<DatasetSummaryItem[]>([]);
   const [selectedDatasetId, setSelectedDatasetId] = useState<string>(activeDatasetId);
+  const [selectedWeatherDatasetId, setSelectedWeatherDatasetId] = useState<string>('');
 
-  // Weather data
+  // Dynamic overlays synchronized with selected dataset
+  const [activeCongestion, setActiveCongestion] = useState<any[]>(congestionCells);
   const [weatherData, setWeatherData] = useState<any[]>([]);
 
   // Selected route segment for bidirectional inspector
@@ -70,28 +76,58 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
   const [compareResult, setCompareResult] = useState<CompareRoutesResponse | null>(null);
 
   useEffect(() => {
+    if (initialOrigin) setOrigin(initialOrigin);
+  }, [initialOrigin]);
+
+  useEffect(() => {
+    if (initialDestination) setDestination(initialDestination);
+  }, [initialDestination]);
+
+  useEffect(() => {
     setSelectedDatasetId(activeDatasetId);
   }, [activeDatasetId]);
 
   useEffect(() => {
     let cancelled = false;
-    const fetchAuxiliary = async () => {
+    const fetchDatasetsList = async () => {
       try {
-        const [dsList, wxRes] = await Promise.all([
-          api.getDatasets().catch(() => []),
-          api.getWeather().catch(() => []),
-        ]);
-        if (cancelled) return;
-        setAvailableDatasets(Array.isArray(dsList) ? dsList : []);
-        const wxCells = Array.isArray(wxRes) ? wxRes : (wxRes?.weather_cells || wxRes?.cells || []);
-        setWeatherData(wxCells);
+        const dsList = await api.getDatasets();
+        if (!cancelled && Array.isArray(dsList)) {
+          setAvailableDatasets(dsList);
+        }
       } catch (e) {
-        console.warn('Could not fetch aux routing data:', e);
+        console.warn('Could not fetch dataset list:', e);
       }
     };
-    fetchAuxiliary();
+    fetchDatasetsList();
     return () => { cancelled = true; };
   }, []);
+
+  // Synchronize overlays whenever traffic or weather dataset changes
+  useEffect(() => {
+    let cancelled = false;
+    const fetchDatasetOverlays = async () => {
+      try {
+        const isDefault = selectedDatasetId === 'synthetic_demo_v1';
+        const [congRes, wxRes] = await Promise.all([
+          api.getCongestionCells(isDefault ? undefined : { dataset_id: selectedDatasetId }).catch(() => []),
+          api.getWeather(selectedWeatherDatasetId ? { dataset_id: selectedWeatherDatasetId } : undefined).catch(() => []),
+        ]);
+        if (cancelled) return;
+        if (Array.isArray(congRes)) {
+          setActiveCongestion(congRes);
+        } else if (congRes && Array.isArray((congRes as any).cells)) {
+          setActiveCongestion((congRes as any).cells);
+        }
+        const wxCells = Array.isArray(wxRes?.weather) ? wxRes.weather : (Array.isArray(wxRes) ? wxRes : (wxRes?.weather_cells || wxRes?.cells || []));
+        setWeatherData(wxCells);
+      } catch (e) {
+        console.warn('Could not fetch dataset overlays:', e);
+      }
+    };
+    fetchDatasetOverlays();
+    return () => { cancelled = true; };
+  }, [selectedDatasetId, selectedWeatherDatasetId]);
 
   const presets: Record<string, { label: string; desc: string; w: typeof weights }> = {
     distance: {
@@ -148,6 +184,7 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
         algorithm,
         objective,
         dataset_id: selectedDatasetId,
+        weather_dataset_id: selectedWeatherDatasetId || undefined,
         weights: objective === 'custom' ? weights : undefined,
       });
       setRouteResult(res);
@@ -174,6 +211,7 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
         algorithm,
         objective,
         dataset_id: selectedDatasetId,
+        weather_dataset_id: selectedWeatherDatasetId || undefined,
       });
       setCompareResult(res);
       if (res.routes && res.routes.length > 0) {
@@ -246,12 +284,12 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
           {/* Active Dataset Context Selector */}
           <div>
             <label className="block text-xs font-mono text-cyan-400 mb-1 flex items-center gap-1">
               <Database className="w-3.5 h-3.5" />
-              DATASET CONTEXT
+              TRAFFIC DATASET
             </label>
             <select
               value={selectedDatasetId}
@@ -261,7 +299,27 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
               <option value="synthetic_demo_v1">synthetic_demo_v1 (Baseline Demo)</option>
               {availableDatasets.map((ds) => (
                 <option key={ds.id} value={ds.id}>
-                  {ds.filename} ({ds.row_count} rows)
+                  {ds.filename} ({ds.dataset_type})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Optional Weather Grid Dataset Selector */}
+          <div>
+            <label className="block text-xs font-mono text-amber-400 mb-1 flex items-center gap-1">
+              <CloudLightning className="w-3.5 h-3.5" />
+              WEATHER GRID
+            </label>
+            <select
+              value={selectedWeatherDatasetId}
+              onChange={(e) => setSelectedWeatherDatasetId(e.target.value)}
+              className="w-full bg-aerospace-950 border border-amber-800/60 rounded-lg px-3 py-2 text-xs font-mono text-amber-200 focus:outline-none focus:border-amber-400"
+            >
+              <option value="">Default Baseline Weather</option>
+              {availableDatasets.filter((d) => d.dataset_type === 'weather_observations').map((ds) => (
+                <option key={ds.id} value={ds.id}>
+                  {ds.filename}
                 </option>
               ))}
             </select>
@@ -443,7 +501,7 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
             edges={network?.edges || []}
             primaryRoute={routeResult}
             secondaryRoute={compareResult?.routes?.find((r) => r.label.includes('distance')) || null}
-            congestionCells={congestionCells}
+            congestionCells={activeCongestion.length > 0 ? activeCongestion : congestionCells}
             weatherCells={weatherData}
             selectedSegmentId={selectedSegment?.edge_id || null}
             onSelectSegment={(seg) => setSelectedSegment(seg)}
@@ -456,7 +514,7 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
             edges={network?.edges || []}
             primaryRoute={routeResult}
             secondaryRoute={compareResult?.routes?.find((r) => r.label.includes('distance')) || null}
-            congestionCells={congestionCells}
+            congestionCells={activeCongestion.length > 0 ? activeCongestion : congestionCells}
             weatherCells={weatherData}
             selectedSegmentId={selectedSegment?.edge_id || null}
             onSelectSegment={(seg) => setSelectedSegment(seg)}

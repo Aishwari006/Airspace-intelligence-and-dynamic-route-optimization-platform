@@ -22,17 +22,35 @@ def get_models_status() -> dict[str, Any]:
         m = state.congestion_model.metadata
         feats = m.get("feature_schema", {}).get("features", [])
         sha = m.get("sha256", "")
+        raw_metrics = dict(m.get("metrics", {}))
+        model_name = m.get("model_name", "random_forest")
+        test_m = m.get("selected_test_metrics") or raw_metrics.get(model_name, {}).get("test", {})
+        flat_metrics = {
+            "accuracy": test_m.get("accuracy"),
+            "test_accuracy": test_m.get("accuracy"),
+            "balanced_accuracy": test_m.get("balanced_accuracy"),
+            "macro_f1": test_m.get("macro_f1"),
+            "test_samples": test_m.get("n"),
+            "n_test_samples": test_m.get("n"),
+            "per_class": test_m.get("per_class", {}),
+            "confusion_matrix": test_m.get("confusion_matrix", {}),
+            "brier_multiclass": test_m.get("brier_multiclass"),
+            "roc_auc_ovr_macro": test_m.get("roc_auc_ovr_macro"),
+            "ood_guard": "active",
+            **raw_metrics,
+        }
         congestion_info = {
-            "name": m.get("model_name", "random_forest"),
+            "name": model_name,
             "kind": state.congestion_model.kind,
             "version": state.congestion_model.version,
             "task": m.get("task"),
             "target_definition": m.get("target_definition"),
-            "metrics": m.get("metrics", {}),
+            "metrics": flat_metrics,
             "feature_names": feats,
             "feature_count": len(feats),
             "sha256": sha[:16] + "..." if sha else "",
             "is_loaded": True,
+            "ood_detection": "active",
         }
 
     eta_info = None
@@ -40,17 +58,31 @@ def get_models_status() -> dict[str, Any]:
         m = state.eta_model.metadata
         feats = m.get("feature_schema", {}).get("features", [])
         sha = m.get("sha256", "")
+        raw_metrics = dict(m.get("metrics", {}))
+        model_name = m.get("model_name", "random_forest")
+        test_m = m.get("selected_test_metrics") or raw_metrics.get(model_name, {}).get("test", {})
+        flat_metrics = {
+            "mae_min": test_m.get("mae_min"),
+            "rmse_min": test_m.get("rmse_min"),
+            "r2": test_m.get("r2"),
+            "bias_min": test_m.get("bias_min"),
+            "test_samples": test_m.get("n"),
+            "n_test_samples": test_m.get("n"),
+            "ood_guard": "active",
+            **raw_metrics,
+        }
         eta_info = {
-            "name": m.get("model_name", "random_forest"),
+            "name": model_name,
             "kind": state.eta_model.kind,
             "version": state.eta_model.version,
             "task": m.get("task"),
             "target_definition": m.get("target_definition"),
-            "metrics": m.get("metrics", {}),
+            "metrics": flat_metrics,
             "feature_names": feats,
             "feature_count": len(feats),
             "sha256": sha[:16] + "..." if sha else "",
             "is_loaded": True,
+            "ood_detection": "active",
         }
 
     # Load summary if present

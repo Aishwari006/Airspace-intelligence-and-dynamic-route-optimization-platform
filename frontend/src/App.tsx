@@ -38,6 +38,8 @@ async function settle<T>(request: Promise<T>): Promise<LoadResult<T>> {
 export function App() {
   const [activeTab, setActiveTab] = useState('overview');
   const [activeDatasetId, setActiveDatasetId] = useState<string>('synthetic_demo_v1');
+  const [routingOrigin, setRoutingOrigin] = useState<string>('VIDP');
+  const [routingDestination, setRoutingDestination] = useState<string>('VABB');
   const [systemStatus, setSystemStatus] = useState<SystemStatus>({ status: 'CHECKING', database: 'Unknown' });
   const [airports, setAirports] = useState<Airport[]>([]);
   const [network, setNetwork] = useState<AirspaceNetwork | null>(null);
@@ -47,6 +49,15 @@ export function App() {
   const [aircraft, setAircraft] = useState<Record<string, unknown>[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loadWarning, setLoadWarning] = useState<string | null>(null);
+
+  const handleSelectAirportForRouting = (icao: string, role: 'origin' | 'destination') => {
+    if (role === 'origin') {
+      setRoutingOrigin(icao);
+    } else {
+      setRoutingDestination(icao);
+    }
+    setActiveTab('routing');
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -185,13 +196,23 @@ export function App() {
                 activeDatasetId={activeDatasetId}
               />
             )}
-            {activeTab === 'explorer' && <AirspaceExplorerView network={network} airports={airports} congestionCells={congestionCells} aircraft={aircraft} />}
+            {activeTab === 'explorer' && (
+              <AirspaceExplorerView
+                network={network}
+                airports={airports}
+                congestionCells={congestionCells}
+                aircraft={aircraft}
+                onSelectAirportForRouting={handleSelectAirportForRouting}
+              />
+            )}
             {activeTab === 'routing' && (
               <RouteLabView
                 network={network}
                 airports={airports}
                 activeDatasetId={activeDatasetId}
                 onSelectDataset={setActiveDatasetId}
+                initialOrigin={routingOrigin}
+                initialDestination={routingDestination}
               />
             )}
             {activeTab === 'scenarios' && <ScenarioStudioView scenarios={scenarios} onScenarioChange={refreshScenarios} airports={airports} network={network} />}

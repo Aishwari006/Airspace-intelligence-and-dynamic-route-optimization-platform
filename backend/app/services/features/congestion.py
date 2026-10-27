@@ -95,8 +95,17 @@ def build_feature_frame(agg: pd.DataFrame, weather: pd.DataFrame | None, grid: G
     windows = pd.date_range(t_start.floor(f"{window_min}min"), t_end, freq=f"{window_min}min", inclusive="left")
     full = pd.MultiIndex.from_product([cells, windows], names=["cell_id", "window_start_utc"]).to_frame(index=False)
     df = full.merge(agg.drop(columns=["window_end_utc"], errors="ignore"), on=["cell_id", "window_start_utc"], how="left")
-    df["aircraft_count"] = df.aircraft_count.fillna(0).astype(int)
-    df["observation_count"] = df.observation_count.fillna(0).astype(int)
+    if "aircraft_count" in df.columns:
+        df["aircraft_count"] = df["aircraft_count"].fillna(0).astype(int)
+    else:
+        df["aircraft_count"] = 0
+    if "observation_count" in df.columns:
+        df["observation_count"] = df["observation_count"].fillna(0).astype(int)
+    else:
+        df["observation_count"] = 0
+    for col in ["mean_speed_mps", "speed_std_mps", "mean_altitude_m"]:
+        if col not in df.columns:
+            df[col] = np.nan
     df["window_end_utc"] = df.window_start_utc + pd.Timedelta(minutes=window_min)
     df = df.sort_values(["cell_id", "window_start_utc"]).reset_index(drop=True)
 
@@ -124,15 +133,27 @@ def build_feature_frame(agg: pd.DataFrame, weather: pd.DataFrame | None, grid: G
 
     wx_cols = ["precipitation_mm", "cloud_cover_pct", "wind_speed_10m_ms", "wind_direction_10m_deg", "wind_gusts_10m_ms"]
     if weather is not None and len(weather):
-        w = weather[["location_id", "valid_time_utc", *wx_cols]].rename(columns={"location_id": "cell_id"}).copy()
-        w["valid_time_utc"] = pd.to_datetime(w.valid_time_utc, utc=True)
-        df["wx_hour"] = df.window_start_utc.dt.floor("1h")
-        df = df.merge(w.rename(columns={"valid_time_utc": "wx_hour"}), on=["cell_id", "wx_hour"], how="left")
-        df = df.drop(columns=["wx_hour"])
+        w = weather.copy()
+        if "location_id" not in w.columns and "cell_id" in w.columns:
+            w["location_id"] = w["cell_id"]
+        for c in wx_cols:
+            if c not in w.columns:
+                w[c] = np.nan
+        avail_cols = [c for c in ["location_id", "valid_time_utc", *wx_cols] if c in w.columns]
+        w = w[avail_cols].rename(columns={"location_id": "cell_id"})
+        if "valid_time_utc" in w.columns:
+            w["valid_time_utc"] = pd.to_datetime(w["valid_time_utc"], utc=True)
+            df["wx_hour"] = df.window_start_utc.dt.floor("1h")
+            df = df.merge(w.rename(columns={"valid_time_utc": "wx_hour"}), on=["cell_id", "wx_hour"], how="left")
+            df = df.drop(columns=["wx_hour"])
+        else:
+            for c in wx_cols:
+                if c not in df.columns:
+                    df[c] = np.nan
     else:
         for c in wx_cols:
             df[c] = np.nan
-    df["weather_missing"] = df.precipitation_mm.isna().astype(int)
+    df["weather_missing"] = df.get("precipitation_mm", pd.Series(np.nan, index=df.index)).isna().astype(int)
     rad = np.radians(df.wind_direction_10m_deg)
     df["wind_dir_sin"] = np.sin(rad)
     df["wind_dir_cos"] = np.cos(rad)

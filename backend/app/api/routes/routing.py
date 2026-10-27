@@ -31,6 +31,7 @@ def _resolve_context(
     scenario_id: str | None,
     db: Session,
     dataset_id: str | None = None,
+    weather_dataset_id: str | None = None,
 ):  # noqa: ANN001
     t = departure_time or state.settings.default_scenario_time_utc
     if t.tzinfo is None:
@@ -38,7 +39,7 @@ def _resolve_context(
 
     # Thread-safe dataset-specific context resolution:
     # Does NOT mutate shared global state.
-    builder = get_dataset_context_builder(dataset_id, state.context_builder)
+    builder = get_dataset_context_builder(dataset_id, state.context_builder, weather_dataset_id=weather_dataset_id)
     base_ctx = builder.base_context(t)
 
     if not scenario_id:
@@ -68,8 +69,14 @@ def _resolve_context(
 @router.post("/optimize", response_model=RouteDetailResponse)
 def optimize_route(req: OptimizeRouteRequest, db: Session = Depends(get_db)) -> RouteDetailResponse:
     state = get_state()
-    ctx = _resolve_context(state, req.departure_time_utc, req.scenario_id, db, dataset_id=req.dataset_id)
-
+    ctx = _resolve_context(
+        state,
+        req.departure_time_utc,
+        req.scenario_id,
+        db,
+        dataset_id=req.dataset_id,
+        weather_dataset_id=req.weather_dataset_id,
+    )
 
     # Cost weights
     if req.weights:
@@ -114,6 +121,7 @@ def optimize_route(req: OptimizeRouteRequest, db: Session = Depends(get_db)) -> 
         algorithm=req.algorithm,
         route_id=res["route_id"],
         dataset_id=req.dataset_id or "synthetic_demo_v1",
+        weather_dataset_id=req.weather_dataset_id,
         run_id=req.run_id,
         path=res["path"],
         geometry=res["geometry"],
@@ -129,7 +137,14 @@ def optimize_route(req: OptimizeRouteRequest, db: Session = Depends(get_db)) -> 
 @router.post("/compare", response_model=CompareRoutesResponse)
 def compare_routes(req: OptimizeRouteRequest, db: Session = Depends(get_db)) -> CompareRoutesResponse:
     state = get_state()
-    ctx = _resolve_context(state, req.departure_time_utc, req.scenario_id, db, dataset_id=req.dataset_id)
+    ctx = _resolve_context(
+        state,
+        req.departure_time_utc,
+        req.scenario_id,
+        db,
+        dataset_id=req.dataset_id,
+        weather_dataset_id=req.weather_dataset_id,
+    )
 
     if req.weights:
         selected_w = CostWeights.from_dict(req.weights.model_dump())
@@ -169,6 +184,7 @@ def compare_routes(req: OptimizeRouteRequest, db: Session = Depends(get_db)) -> 
             algorithm=req.algorithm,
             route_id=a["route_id"],
             dataset_id=req.dataset_id or "synthetic_demo_v1",
+            weather_dataset_id=req.weather_dataset_id,
             run_id=req.run_id,
             path=a["path"],
             geometry=a["geometry"],
@@ -193,6 +209,7 @@ def compare_routes(req: OptimizeRouteRequest, db: Session = Depends(get_db)) -> 
         destination=req.destination,
         scenario_id=req.scenario_id,
         dataset_id=req.dataset_id or "synthetic_demo_v1",
+        weather_dataset_id=req.weather_dataset_id,
         run_id=req.run_id,
         selected_objective=req.objective,
         algorithm=req.algorithm,
@@ -219,7 +236,14 @@ def get_pareto_routes(
 @router.post("/explain")
 def explain_candidate_route(req: ExplainRouteRequest, db: Session = Depends(get_db)) -> dict[str, Any]:
     state = get_state()
-    ctx = _resolve_context(state, None, req.scenario_id, db, dataset_id=req.dataset_id)
+    ctx = _resolve_context(
+        state,
+        None,
+        req.scenario_id,
+        db,
+        dataset_id=req.dataset_id,
+        weather_dataset_id=req.weather_dataset_id,
+    )
     w = CostWeights.from_dict(req.weights.model_dump()) if req.weights else CostWeights.preset(req.objective if req.objective in ["distance", "fastest", "weather", "congestion", "balanced"] else "balanced")
 
     res = state.planner.plan(req.origin, req.destination, w, ctx, req.algorithm, label=req.objective)
@@ -228,5 +252,10 @@ def explain_candidate_route(req: ExplainRouteRequest, db: Session = Depends(get_
     closed = closed_edges_on_unconstrained(state.planner, req.origin, req.destination, ctx, w, req.algorithm)
 
     expl = explain_route(res, res_base if res_base.get("found") else None, ctx, OBJECTIVE_NAMES.get(req.objective, req.objective), closed)
-    return {"route_id": res.get("route_id"), "explanation": expl, "dataset_id": req.dataset_id or "synthetic_demo_v1"}
+    return {
+        "route_id": res.get("route_id"),
+        "explanation": expl,
+        "dataset_id": req.dataset_id or "synthetic_demo_v1",
+        "weather_dataset_id": req.weather_dataset_id,
+    }
 

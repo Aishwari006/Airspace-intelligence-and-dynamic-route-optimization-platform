@@ -23,6 +23,7 @@ class OptimizeRouteRequest(BaseModel):
     scenario_id: str | None = None
     departure_time_utc: datetime | None = None
     dataset_id: str | None = None
+    weather_dataset_id: str | None = None
     run_id: str | None = None
 
 
@@ -65,6 +66,7 @@ class RouteDetailResponse(BaseModel):
     algorithm: str
     route_id: str | None = None
     dataset_id: str | None = "synthetic_demo_v1"
+    weather_dataset_id: str | None = None
     run_id: str | None = None
     path: list[str] = Field(default_factory=list)
     geometry: list[list[float]] = Field(default_factory=list)
@@ -83,6 +85,7 @@ class CompareRoutesResponse(BaseModel):
     destination: str
     scenario_id: str | None = None
     dataset_id: str | None = "synthetic_demo_v1"
+    weather_dataset_id: str | None = None
     run_id: str | None = None
     selected_objective: str
     algorithm: str
@@ -98,6 +101,7 @@ class ExplainRouteRequest(BaseModel):
     algorithm: str = "dijkstra"
     scenario_id: str | None = None
     dataset_id: str | None = None
+    weather_dataset_id: str | None = None
     run_id: str | None = None
     weights: RouteWeightsInput | None = None
 

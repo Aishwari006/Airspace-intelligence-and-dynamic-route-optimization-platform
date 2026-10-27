@@ -16,10 +16,13 @@ router = APIRouter(prefix="/weather", tags=["Weather"])
 @router.get("")
 def get_weather_observations(
     time_utc: datetime | None = Query(None, description="Hourly time in UTC"),
+    dataset_id: str | None = Query(None, description="Optional uploaded dataset context identifier"),
     limit: int = Query(100, le=500),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     query = select(m.WeatherObservation)
+    if dataset_id:
+        query = query.where(m.WeatherObservation.dataset == dataset_id)
     if time_utc:
         t0 = time_utc.replace(tzinfo=None)
         query = query.where(m.WeatherObservation.valid_time_utc == t0)
