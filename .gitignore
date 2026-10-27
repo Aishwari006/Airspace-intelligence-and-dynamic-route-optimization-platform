@@ -27,14 +27,11 @@ frontend/.env.*
 data/raw/
 data/interim/
 data/processed/
-data/synthetic/
 data/cache/
-data/uploads/
 *api_cache*
 !data/reference/
 !data/reference/airports_subset.csv
 !data/reference/airports_subset.meta.json
-*.csv
 *.parquet
 # =============================================================================
 # Python / Virtual Environments / Packaging
@@ -61,7 +58,6 @@ htmlcov/
 # =============================================================================
 *.joblib
 *.pkl
-ml/artifacts/*/*/test_predictions.csv
 
 # =============================================================================
 # Frontend / Node

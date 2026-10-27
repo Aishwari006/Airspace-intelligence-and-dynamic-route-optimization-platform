@@ -1,0 +1,5 @@
+cell_id,aircraft_count,congestion_score,predicted_class
+IND_N_01,14,0.85,HIGH
+IND_N_02,8,0.50,MEDIUM
+IND_W_01,2,0.12,LOW
+IND_S_01,1,0.05,LOW
