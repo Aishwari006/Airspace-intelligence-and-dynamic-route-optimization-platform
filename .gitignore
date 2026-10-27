@@ -14,6 +14,7 @@ frontend/.env.*
 *api_key*
 *.pem
 *.key
+*.zip
 
 # =============================================================================
 # External API Caches, Local Databases & Generated Datasets
@@ -33,7 +34,8 @@ data/uploads/
 !data/reference/
 !data/reference/airports_subset.csv
 !data/reference/airports_subset.meta.json
-
+*.csv
+*.parquet
 # =============================================================================
 # Python / Virtual Environments / Packaging
 # =============================================================================

@@ -51,7 +51,16 @@ class ContextBuilder:
         self.cm, self.em, self.th = congestion_model, eta_model, thresholds
         self.edge_cells = {(u, v): grid.cells_along(*rg.pos(u), *rg.pos(v), step_km=40) for u, v in rg.g.edges()}
         self._cache: OrderedDict[datetime, RoutingContext] = OrderedDict()
-        self._wx = store.weather.set_index(["location_id", "valid_time_utc"]).sort_index() if len(store.weather) else None
+        if len(store.weather):
+            wx_df = store.weather.copy()
+            if "location_id" not in wx_df.columns and "cell_id" in wx_df.columns:
+                wx_df["location_id"] = wx_df["cell_id"]
+            if "location_id" in wx_df.columns and "valid_time_utc" in wx_df.columns:
+                self._wx = wx_df.set_index(["location_id", "valid_time_utc"]).sort_index()
+            else:
+                self._wx = None
+        else:
+            self._wx = None
         self._counts = (store.agg.set_index(["cell_id", "window_start_utc"])["aircraft_count"]
                         if len(store.agg) else pd.Series(dtype=float))
 
@@ -65,8 +74,21 @@ class ContextBuilder:
             block = self._wx.xs(hour, level="valid_time_utc")
         except KeyError:
             return out
-        sev = weather_severity(block.precipitation_mm, block.wind_gusts_10m_ms, block.cloud_cover_pct)
-        for cid, s, ws, wd in zip(block.index, sev, block.get("wind_speed_100m_ms", block.wind_speed_10m_ms), block.wind_direction_10m_deg):
+        precip = block["precipitation_mm"] if "precipitation_mm" in block else pd.Series(0.0, index=block.index)
+        gusts = block["wind_gusts_10m_ms"] if "wind_gusts_10m_ms" in block else pd.Series(0.0, index=block.index)
+        clouds = block["cloud_cover_pct"] if "cloud_cover_pct" in block else pd.Series(0.0, index=block.index)
+        sev = weather_severity(precip, gusts, clouds)
+        ws_col = (
+            block["wind_speed_100m_ms"]
+            if "wind_speed_100m_ms" in block
+            else (block["wind_speed_10m_ms"] if "wind_speed_10m_ms" in block else pd.Series(0.0, index=block.index))
+        )
+        wd_col = (
+            block["wind_direction_10m_deg"]
+            if "wind_direction_10m_deg" in block
+            else pd.Series(0.0, index=block.index)
+        )
+        for cid, s, ws, wd in zip(block.index, sev, ws_col, wd_col):
             out[cid] = {"severity": float(s), "ws": float(ws), "wd": float(wd)}
         return out
 

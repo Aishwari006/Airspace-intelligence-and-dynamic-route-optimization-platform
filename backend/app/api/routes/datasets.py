@@ -31,11 +31,28 @@ async def upload_dataset(
     """Handles drag-and-drop or file-picker CSV upload with explicit dataset type."""
     if not file.filename:
         raise ValidationFailed("Uploaded file must have a filename.")
-    if not file.filename.lower().endswith(".csv"):
-        raise ValidationFailed("Only CSV files are supported for dataset upload.", details={"filename": file.filename})
+    fname_lower = file.filename.lower()
+    if fname_lower.endswith((".parquet", ".pq")):
+        raise ValidationFailed(
+            "Direct upload of Parquet (.parquet, .pq) files is not supported. Only CSV files can be uploaded. "
+            "Parquet is reserved for internal pipeline processing. Please export your dataset as CSV and upload again.",
+            details={"filename": file.filename},
+        )
+    if not fname_lower.endswith(".csv"):
+        raise ValidationFailed(
+            "Only CSV files are supported for dataset upload. Please choose a .csv file.",
+            details={"filename": file.filename},
+        )
 
     content = await file.read()
     return manager.handle_upload(filename=file.filename, content=content, dataset_type=dataset_type)
+
+
+@router.delete("/{dataset_id}")
+def delete_dataset(dataset_id: str) -> dict[str, Any]:
+    """Deletes an uploaded dataset, associated runs, and artifacts."""
+    manager.delete_dataset(dataset_id)
+    return {"status": "deleted", "dataset_id": dataset_id}
 
 
 @router.get("", response_model=list[DatasetSummaryItem])

@@ -65,11 +65,36 @@ export const api = {
   getAirports: () => fetchJson<any[]>('/airports'),
   getAirspaceNetwork: () => fetchJson<AirspaceNetwork>('/airports/network'),
   
-  getAircraftObservations: (limit = 100) => fetchJson<any>(`/aircraft/observations?limit=${limit}`),
-  getWeather: () => fetchJson<any>('/weather'),
+  getAircraftObservations: (params?: number | { limit?: number; timestamp_utc?: string; window_seconds?: number; dataset_id?: string }) => {
+    if (typeof params === 'number') {
+      return fetchJson<any>(`/aircraft/observations?limit=${params}`);
+    }
+    const q = new URLSearchParams();
+    if (params?.limit) q.set('limit', String(params.limit));
+    if (params?.timestamp_utc) q.set('timestamp_utc', params.timestamp_utc);
+    if (params?.window_seconds) q.set('window_seconds', String(params.window_seconds));
+    if (params?.dataset_id) q.set('dataset_id', params.dataset_id);
+    const queryStr = q.toString();
+    return fetchJson<any>(`/aircraft/observations${queryStr ? `?${queryStr}` : ''}`);
+  },
+  getWeather: (params?: { time_utc?: string; dataset_id?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.time_utc) q.set('time_utc', params.time_utc);
+    if (params?.dataset_id) q.set('dataset_id', params.dataset_id);
+    if (params?.limit) q.set('limit', String(params.limit));
+    const queryStr = q.toString();
+    return fetchJson<any>(`/weather${queryStr ? `?${queryStr}` : ''}`);
+  },
   
-  getCongestionCells: () => fetchJson<any[]>('/congestion/cells'),
-  getCongestionTimeSeries: (cellId: string) => fetchJson<any>(`/congestion/timeseries?cell_id=${encodeURIComponent(cellId)}`),
+  getCongestionCells: (params?: { time_utc?: string; dataset_id?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.time_utc) q.set('time_utc', params.time_utc);
+    if (params?.dataset_id) q.set('dataset_id', params.dataset_id);
+    const queryStr = q.toString();
+    return fetchJson<any[]>(`/congestion/cells${queryStr ? `?${queryStr}` : ''}`);
+  },
+  getCongestionTimeSeries: (cellId: string, datasetId?: string) =>
+    fetchJson<any>(`/congestion/timeseries?cell_id=${encodeURIComponent(cellId)}${datasetId ? `&dataset_id=${encodeURIComponent(datasetId)}` : ''}`),
   
   // Datasets Studio Endpoints
   getDatasets: () => fetchJson<any[]>('/datasets'),
@@ -90,6 +115,10 @@ export const api = {
     }
     return resp.json();
   },
+  deleteDataset: (id: string) =>
+    fetchJson<{ success: boolean; message: string }>(`/datasets/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
   runDatasetPipeline: (id: string, payload: { stages: string[]; custom_mapping?: Record<string, string> }) =>
     fetchJson<any>(`/datasets/${encodeURIComponent(id)}/pipeline`, {
       method: 'POST',
@@ -119,6 +148,7 @@ export const api = {
     weights?: Record<string, number>;
     scenario_id?: string;
     dataset_id?: string;
+    weather_dataset_id?: string;
     run_id?: string;
   }) => fetchJson<RouteDetail>('/routes/optimize', {
     method: 'POST',
@@ -132,6 +162,7 @@ export const api = {
     objective?: string;
     scenario_id?: string;
     dataset_id?: string;
+    weather_dataset_id?: string;
     run_id?: string;
   }) => fetchJson<CompareRoutesResponse>('/routes/compare', {
     method: 'POST',

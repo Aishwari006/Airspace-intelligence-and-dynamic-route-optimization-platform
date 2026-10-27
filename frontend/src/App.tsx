@@ -45,6 +45,8 @@ export function App() {
 
   const [activeTab, setActiveTab] = useState('overview');
   const [activeDatasetId, setActiveDatasetId] = useState<string>('synthetic_demo_v1');
+  const [routingOrigin, setRoutingOrigin] = useState<string>('VIDP');
+  const [routingDestination, setRoutingDestination] = useState<string>('VABB');
   const [systemStatus, setSystemStatus] = useState<SystemStatus>({ status: 'CHECKING', database: 'Unknown' });
   const [airports, setAirports] = useState<Airport[]>([]);
   const [network, setNetwork] = useState<AirspaceNetwork | null>(null);
@@ -59,6 +61,15 @@ export function App() {
   const handleRoleChange = (role: UserRole) => {
     setUserRole(role);
     localStorage.setItem('skyforce_role', role);
+  };
+
+  const handleSelectAirportForRouting = (icao: string, role: 'origin' | 'destination') => {
+    if (role === 'origin') {
+      setRoutingOrigin(icao);
+    } else {
+      setRoutingDestination(icao);
+    }
+    setActiveTab('routing');
   };
 
   useEffect(() => {
@@ -108,17 +119,24 @@ export function App() {
       setNetwork(safeNetwork);
       setScenarios(scenarioData);
       setModelsStatus(modelResult.data ?? null);
-      setCongestionCells(Array.isArray(cellResult.data) ? cellResult.data.filter((cell) => cell && typeof cell.cell_id === 'string') : []);
-      const observations = aircraftResult.data && typeof aircraftResult.data === 'object'
-        ? (aircraftResult.data as { observations?: Record<string, unknown>[] }).observations
-        : [];
-      setAircraft(Array.isArray(observations) ? observations : []);
-      setLoadWarning(failedParts.length ? `Some data could not be loaded: ${failedParts.join(', ')}. Check the backend/API status.` : null);
+      setCongestionCells(Array.isArray(cellResult.data) ? cellResult.data.filter((cell) => cell && typeof cell.cell_id === 'string') as CongestionCell[] : []);
+      setAircraft(Array.isArray(aircraftResult.data) ? aircraftResult.data : []);
       setInitialLoading(false);
+
+      if (failedParts.length > 0) {
+        setLoadWarning(`Running with partial data (${failedParts.join(', ')} failed). Using deterministic fallbacks where needed.`);
+      } else {
+        setLoadWarning(null);
+      }
     };
 
     void initApp();
-    return () => { cancelled = true; };
+    const interval = window.setInterval(initApp, 45000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, []);
 
   const refreshScenarios = async () => {
@@ -167,6 +185,8 @@ export function App() {
           <PassengerPortalView
             onSwitchToOperations={() => handleRoleChange('operations')}
             onInspectRouteInOperations={(orig, dest) => {
+              setRoutingOrigin(orig);
+              setRoutingDestination(dest);
               handleRoleChange('operations');
               setActiveTab('routing');
             }}
@@ -247,6 +267,8 @@ export function App() {
             {activeTab === 'delay-intelligence' && (
               <FlightDelayIntelligenceView
                 onInspectRoute={(orig, dest) => {
+                  setRoutingOrigin(orig);
+                  setRoutingDestination(dest);
                   setActiveTab('routing');
                 }}
               />
@@ -263,13 +285,23 @@ export function App() {
                 activeDatasetId={activeDatasetId}
               />
             )}
-            {activeTab === 'explorer' && <AirspaceExplorerView network={network} airports={airports} congestionCells={congestionCells} aircraft={aircraft} />}
+            {activeTab === 'explorer' && (
+              <AirspaceExplorerView
+                network={network}
+                airports={airports}
+                congestionCells={congestionCells}
+                aircraft={aircraft}
+                onSelectAirportForRouting={handleSelectAirportForRouting}
+              />
+            )}
             {activeTab === 'routing' && (
               <RouteLabView
                 network={network}
                 airports={airports}
                 activeDatasetId={activeDatasetId}
                 onSelectDataset={setActiveDatasetId}
+                initialOrigin={routingOrigin}
+                initialDestination={routingDestination}
               />
             )}
             {activeTab === 'scenarios' && <ScenarioStudioView scenarios={scenarios} onScenarioChange={refreshScenarios} airports={airports} network={network} />}

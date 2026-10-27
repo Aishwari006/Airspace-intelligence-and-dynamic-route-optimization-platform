@@ -1,7 +1,7 @@
 """Aircraft observations and track telemetry endpoints."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
@@ -17,17 +17,19 @@ router = APIRouter(prefix="/aircraft", tags=["Aircraft & Surveillance"])
 def get_aircraft_observations(
     timestamp_utc: datetime | None = Query(None, description="Time slice in UTC"),
     window_seconds: int = Query(90, description="Window tolerance around timestamp in seconds"),
+    dataset_id: str | None = Query(None, description="Optional uploaded dataset context identifier"),
     limit: int = Query(500, le=2000),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     query = select(m.AircraftObservation)
+    if dataset_id:
+        query = query.where(m.AircraftObservation.dataset == dataset_id)
     if timestamp_utc:
         t0 = timestamp_utc.replace(tzinfo=None)
-        t_min = t0
-        t_max = t0
+        dt = timedelta(seconds=window_seconds)
         query = query.where(
-            m.AircraftObservation.timestamp_utc >= t_min,
-            m.AircraftObservation.timestamp_utc <= t_max,
+            m.AircraftObservation.timestamp_utc >= (t0 - dt),
+            m.AircraftObservation.timestamp_utc <= (t0 + dt),
         )
     query = query.order_by(m.AircraftObservation.timestamp_utc.desc()).limit(limit)
     rows = db.scalars(query).all()
@@ -59,10 +61,14 @@ def get_aircraft_observations(
 
 @router.get("/tracks")
 def get_inferred_tracks(
+    dataset_id: str | None = Query(None, description="Optional uploaded dataset context identifier"),
     limit: int = Query(50, le=500),
     db: Session = Depends(get_db),
 ) -> list[dict[str, Any]]:
-    tracks = db.scalars(select(m.InferredTrack).limit(limit)).all()
+    query = select(m.InferredTrack)
+    if dataset_id:
+        query = query.where(m.InferredTrack.dataset == dataset_id)
+    tracks = db.scalars(query.limit(limit)).all()
     return [
         {
             "track_id": t.track_id,
