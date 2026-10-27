@@ -28,6 +28,7 @@ data/interim/
 data/processed/
 data/synthetic/
 data/cache/
+data/uploads/
 *api_cache*
 !data/reference/
 !data/reference/airports_subset.csv

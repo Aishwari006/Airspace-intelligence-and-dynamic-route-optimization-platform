@@ -1,20 +1,17 @@
-# Sky Force: Interactive AI Airspace Intelligence, Dataset-Aware Route Optimization & Explainable Decisions
+# Sky Force: Interactive AI Airspace Intelligence, Dynamic Route Optimization & Passenger Delay Forecasting
 
 > **Operational & Safety Disclaimer:**  
-> *Sky Force is an academic aviation intelligence and simulation research prototype. It is designed for strategic flow research, decision support, and route trade-off analysis. It is not approved for tactical air traffic separation or certified operational navigation.*
+> *Sky Force is an academic aviation intelligence and simulation research prototype. It is designed for strategic traffic flow research, decision support, route trade-off analysis, and passenger delay transparency. It is not approved for tactical air traffic separation or certified operational navigation.*
 
 ---
 
 ## 1. Project Overview & Core Mission
 
-**Sky Force** is an interactive, full-stack aviation intelligence platform that demonstrates the complete data, machine learning, and decision-making pipeline behind modern airspace routing.
+**Sky Force** is an interactive, full-stack aviation intelligence platform that demonstrates the complete data, machine learning, and decision-making pipeline behind modern airspace operations and flight delay communication.
 
-Rather than merely calculating a static geometric line between airports, Sky Force makes every routing factor visible, traceable, and explainable:
-- Ingests and cleans multi-schema flight telemetry and gridded meteorological data across a **9-stage data quality pipeline**.
-- Aggregates airspace into spatial cells ($2.0^\circ$ half-open intervals) and temporal sliding windows ($15\text{ minutes}$) to predict both **corridor congestion** and **airway segment flight duration (ETA)**.
-- Solves multi-objective routing using $A^*$ search and **Pareto-optimal frontier discovery** across distance, flight duration, storm cell penalties, and congestion risk.
-- Visualizes airspace in synchronous **2D (Leaflet)** and **interactive 3D (MapLibre GL JS + deck.gl)** with zero API tokens or external key dependencies.
-- Explains routing decisions through dimensional cost attribution and natural language justifications with local LLM integration (Ollama / Phi-3) and deterministic fallback.
+The platform provides a unified system supporting two synchronized operational experiences:
+1. **Passenger Portal**: Designed for air travelers who need transparent, honest flight delay updates. Communicates plain-language delay summaries, calibrated uncertainty ranges (e.g., 20 to 35 min), distinct gate vs runway departure times, an 8-stage operational progress timeline, transparent factor attribution (Confirmed, Model-inferred, Unavailable), and same-day alternative flights.
+2. **Aviation Operations Console**: Full-fidelity airspace intelligence environment equipped with 3D airspace visualization, Dataset Studio for custom CSV ingestion, Closest Point of Approach (CPA) conflict detection, A* multi-objective route optimization with Pareto alternatives, and the **Flight Delay Intelligence** operations module with what-if scenario simulation.
 
 ---
 
@@ -22,10 +19,17 @@ Rather than merely calculating a static geometric line between airports, Sky For
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           SKY FORCE MISSION CONSOLE                             │
+│                    SKY FORCE PASSENGER & OPERATIONS PORTAL                      │
 │                  React 19 + TypeScript + Vite + Tailwind CSS                    │
 │      MapLibre GL + deck.gl (3D) • Leaflet (2D) • Recharts • Lucide Icons       │
-└────────────────────────────────────────┬────────────────────────────────────────┘
+├────────────────────────────────────────┬────────────────────────────────────────┤
+│           PASSENGER PORTAL             │          OPERATIONS CONSOLE            │
+│  • Flight Search & Delay Status Cards  │  • Airspace 2D/3D Congestion Maps      │
+│  • Calibrated Uncertainty Intervals    │  • Route Lab (Multi-Objective A*)      │
+│  • Gate Pushback vs Take-Off Timeline  │  • Dataset Studio & Schema Mapping     │
+│  • Contributing Factor Attribution     │  • Fleet Delay Inspector & Simulator   │
+│  • Alternative Rebooking Options       │  • ML Model Evaluation & EDA Center    │
+└────────────────────────────────────────┼────────────────────────────────────────┘
                                          │ HTTP REST / JSON
                                          ▼
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -37,7 +41,7 @@ Rather than merely calculating a static geometric line between airports, Sky For
 │  • Kinematic Filter   │    (RandomForest 3-Class)│  • Pareto Frontier Discovery │
 │  • Track Segmentation │  • Segment ETA Regressor │  • Cost Model & Wx Penalty   │
 │  • 2° Spatial Grid    │    (RandomForest Target) │  • Hard Disruption Closures  │
-│  • CPA Conflict Scan  │  • SHA-256 Registry      │  • Dynamic Reroute Deltas    │
+│  • CPA Conflict Scan  │  • Delay Forecasting Eng │  • Dynamic Reroute Deltas    │
 ├───────────────────────┴──────────────────────────┴──────────────────────────────┤
 │  DATASET STUDIO ENGINE                               EXPLAINABILITY SERVICE     │
 │  • Multi-Schema CSV Upload (Flights/Weather/Grid)    • Factor Cost Attribution  │
@@ -50,7 +54,8 @@ Rather than merely calculating a static geometric line between airports, Sky For
 │                        PERSISTENCE & EVALUATION LAYER                           │
 │  • SQLite Database (skyforce.db) with Alembic Versioning                        │
 │  • Parquet Archive Storage (Snappy Compressed)                                  │
-│  • Structured Evaluation Center (ml/reports/*.csv, *.json, report.html)         │
+│  • Automated EDA & Data Profiling (ml/reports/eda_profiling_report.html)        │
+│  • Evaluation Reports & Visualizations (ml/reports/figures/*.png, *.json, *.csv)│
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -58,195 +63,202 @@ Rather than merely calculating a static geometric line between airports, Sky For
 
 ## 3. Key Capabilities & Implemented Features
 
-### 3.1 Multi-Schema Dataset Studio
-- **Flexible Ingestion:** Upload and process custom CSVs with explicit schema selection:
-  1. *Aircraft Observations* (`source_aircraft_id`, `timestamp_utc`, `latitude`, `longitude`, `altitude_m`, `ground_speed_mps`).
-  2. *Weather Observations / Grids* (`latitude`, `longitude`, `valid_time_utc`, `precipitation_mm`, `wind_speed_10m_ms`).
-  3. *Pre-aggregated Congestion Grids* (`cell_id`, `window_start_utc`, `aircraft_count`).
-- **Interactive Mapping & Preview:** Visual column-mapping interface with real-time error validation.
-- **Spatiotemporal Linkage:** Associative spatial grid and temporal window joining between independent flight datasets and weather feeds.
-- **Dataset-Aware Optimization:** Parameterized dataset runs ensure route searches evaluate against specific uploaded datasets without unsafe global state mutation.
+### 3.1 Dual-Role User Experience (Sky Force 2.0)
+- **Role Selection Landing**: Polished role selector and top-navigation role switcher allowing users to toggle between traveler and operations workflows seamlessly.
+- **Passenger Experience**:
+  - Transparent departure delay estimates with 80% confidence prediction intervals (e.g., "+20 to 35 min").
+  - Clear separation between **Gate Pushback Time** ($STD \to \text{Off-Block}$) and **Runway Take-Off Time** ($STD + \text{Taxi-Out} + \text{Hold}$).
+  - 8-stage operational progress tracker: Scheduled $\to$ Inbound Aircraft En Route $\to$ Inbound Landed $\to$ Aircraft at Gate $\to$ Boarding $\to$ Doors Closed $\to$ Taxi-Out $\to$ Departed.
+  - Transparent factor attribution classifying delay drivers into **Confirmed Evidence**, **Model Estimates**, and **Unavailable Inputs**.
+  - Alternative flight discovery highlighting same-day options with earlier departure or lower delay risk.
+- **Operations Console**:
+  - Fleet-wide delay distribution dashboard and route disruption monitor.
+  - Deep-dive flight inspector with waterfall factor decomposition (inbound turnaround, runway queues, airspace congestion, convective weather).
+  - Interactive What-If Scenario Simulator: assess downstream departure delay impact when modulating inbound delays ($0\text{--}90\text{ min}$), airport taxi queues ($5\text{--}40\text{ min}$), sector weather ($0\text{--}100\%$), or departure slot ground holds.
+  - Direct bridge linking delayed flights to the Route Lab for rerouting analysis.
 
-### 3.2 9-Stage Data Quality & Kinematic Scrubber
-Every raw trajectory undergoes 9 sequential filters in `backend/app/services/preprocessing/quality.py`:
-1. *Mandatory Header & Type Assertion* (drops missing identifiers or corrupt types).
-2. *FIR Airspace Bounding* (bounds within Indian airspace $6.0^\circ\text{N}-38.0^\circ\text{N}$, $68.0^\circ\text{E}-98.0^\circ\text{E}$).
-3. *Chronological Validity* (validates timestamps and strictly sorts sequence).
-4. *Altitude Physical Envelope* ($-100\text{ m}$ to $15{,}000\text{ m}$).
-5. *Ground Speed Envelope* ($0\text{ m/s}$ to $350\text{ m/s}$).
-6. *Temporal Deduplication* (purges identical timestamp pings for the same aircraft).
-7. *Kinematic Acceleration Limit* ($\Delta v / \Delta t \le 15\text{ m/s}^2$).
-8. *Vertical Climb Rate Limit* ($|\Delta \text{alt} / \Delta t| \le 40\text{ m/s}$).
-9. *Track Segmentation* (splits flights on transmission gaps $> 1{,}800\text{ seconds}$).
+### 3.2 Airspace Visualization (Synchronous 2D & Zero-Key 3D)
+- **Interactive 3D Airspace Map**: Powered by MapLibre GL JS and deck.gl (`frontend/src/components/Airspace3DMap.tsx`) using public vector tiles requiring **zero external API keys or tokens**.
+- **Data-Driven 3D Extrusion**:
+  - *Congestion Columns*: Sector columns extruded by model prediction ($\text{score} \times 25{,}000\text{ m}$), colored Green (`LOW`), Amber (`MEDIUM`), or Red (`HIGH`).
+  - *Storm Columns*: Extruded convective weather cells with precipitation-driven height and color gradients.
+  - *3D Airway Trajectories*: Great-circle flight paths elevated to flight levels ($8{,}000\text{ m} - 11{,}850\text{ m}$).
+- **Synchronous 2D Leaflet Map**: Full-featured 2D alternate with waypoint markers, radar overlays, and along-track profile synchronization.
 
-### 3.3 Zero-Key 3D Airspace & Synchronous 2D Maps
-- **MapLibre GL JS + deck.gl:** Fully open-source 3D perspective viewer (`frontend/src/components/Airspace3DMap.tsx`).
-- **OpenFreeMap Liberty Style:** Public vector basemap requiring **zero API keys or external tokens** (`https://tiles.openfreemap.org/styles/liberty`), backed by an automatic offline raster fallback.
-- **Data-Driven 3D Layers:**
-  - *Extruded Congestion Columns:* Height driven by model prediction ($\text{score} \times 25{,}000\text{ m}$), colored by class: Green (`LOW`), Amber (`MEDIUM`), Red (`HIGH`).
-  - *Extruded Storm Columns:* Height driven by precipitation ($\text{precip\_mm} \times 1{,}200\text{ m}$) with rain intensity gradients.
-  - *Elevated 3D Flight Paths:* Great-circle airway trajectories elevated to cruise altitudes ($8{,}000\text{ m} - 10{,}000\text{ m}$).
-- **Bidirectional Chart & Inspector Sync:** Selecting an airway segment in 2D or 3D instantly synchronizes the **Along-Track Profile Chart** and the **Segment Cost Inspector**.
-
-### 3.4 Multi-Objective Route Optimization & Pareto Frontier
-- **Customizable Objectives:**
-  - `distance`: Classical shortest path along Indian airway network.
-  - `fastest`: Minimizes predicted segment flight duration.
-  - `weather`: Heavy quadratic penalty for convective precipitation storm cells.
+### 3.3 Multi-Objective Route Optimization & Pareto Frontier
+- **Customizable Routing Objectives**:
+  - `distance`: Shortest geodesic path along the Indian airway network.
+  - `fastest`: Minimizes segment traversal duration predicted by ML regressor.
+  - `weather`: Heavy quadratic penalty circumventing convective storm cells.
   - `congestion`: Avoids sectors predicted to experience high traffic density.
-  - `balanced`: Balanced trade-off across time, distance, and environmental risk.
-- **Admissible $A^*$ Heuristic:** Great-circle Haversine lower bound guarantees search optimality without overestimating true costs.
-- **Pareto Frontier Discovery:** Computes non-dominated alternative candidate routes across competing objectives.
-- **Coverage & Missing Data Penalties:** Unobserved weather or congestion regions incur non-zero missing-data penalties, preventing hazardous routes through unmonitored airspace.
+  - `balanced`: Multi-factor optimization balancing flight time, distance, and environmental risk.
+- **Admissible $A^*$ Heuristic**: Great-circle Haversine lower bound guarantees search optimality without overestimating true costs.
+- **Pareto Frontier Discovery**: Identifies non-dominated alternative candidate routes across competing trade-offs.
 
-### 3.5 Conflict Detection (CPA)
-- Linear 3D forward projection scanning for aircraft pairs violating standard separation minimums ($9.26\text{ km}$ / $5\text{ NM}$ horizontal and $300\text{ m}$ / $1{,}000\text{ ft}$ vertical).
-- Computes time to closest point of approach ($t_{\text{CPA}}$) and distance at closest point of approach ($d_{\text{CPA}}$).
-
-### 3.6 Explainability with LLM & Deterministic Fallback
-- Decomposes edge costs into percentage contributions (Distance, Flight Time, Storm Severity, Traffic Congestion).
-- Automatically detects local **Ollama** (`phi3:latest`) for natural language trade-off justifications.
-- Gracefully falls back to a deterministic, rule-based expert system if the LLM is absent or times out.
-
-### 3.7 Sky Force 2.0: Passenger-Centred Delay Prediction & Operations Console
-Sky Force 2.0 extends the platform into a dual-role aviation intelligence system with zero loss of existing capabilities:
-- **Dual-Role Navigation:** Seamless role-aware switching between:
-  1. **Passenger Portal:** Designed for travelers needing transparent, honest flight delay updates. Features flight search with demo suggestions, plain-English delay summaries, calibrated interval estimates (e.g., 20 to 35 min), distinct gate vs runway departure times, an 8-stage operational progress timeline, transparent factor attribution (Confirmed, Model-inferred, Unavailable), and same-day alternative flights.
-  2. **Operations Console (`delay-intelligence`):** Fleet delay distribution, deep-dive flight inspector with waterfall factor decomposition, what-if scenario simulator (modulating inbound delays, airport queues, weather severity, and departure slot holds), direct bridge to Route Lab, and an honest Data Readiness & Production Gap Report.
-- **Aviation Mechanics Integrity:**
-  - Strictly distinguishes **Gate Off-Block Pushback Time** ($STD \to \text{Off-Block}$) from **Runway Take-Off Time** ($STD + \text{Taxi-Out} + \text{Hold}$).
-  - Clarifies that dynamic en-route airway rerouting optimizes airborne flight duration ($t_\text{air}$) and circumvents storm cells, but cannot resolve ground turnaround deficits.
-- **Honest Data Boundaries:** The demonstration delay estimator transparently reports data provenance: surveillance tracks and 2° grid weather are operational historical data, while turnaround schedules and queue holds are demonstration models until airport A-CDM/DCS feeds are connected.
+### 3.4 Multi-Schema Dataset Studio
+- **Flexible Ingestion**: Ingests custom CSVs across three standardized schema types:
+  1. *Aircraft Observations* (`source_aircraft_id`, `timestamp_utc`, `latitude`, `longitude`, `altitude_m`, `ground_speed_mps`).
+  2. *Weather Grids* (`latitude`, `longitude`, `valid_time_utc`, `precipitation_mm`, `wind_speed_10m_ms`).
+  3. *Pre-aggregated Congestion Grids* (`cell_id`, `window_start_utc`, `aircraft_count`).
+- **9-Stage Data Quality Scrubber**: Rigorous sequential validation in `backend/app/services/preprocessing/quality.py` asserting header types, FIR boundaries ($6^\circ\text{N}-38^\circ\text{N}$, $68^\circ\text{E}-98^\circ\text{E}$), chronological order, physical speed/altitude bounds ($0\text{--}350\text{ m/s}$, $-100\text{--}15{,}000\text{ m}$), deduplication, kinematic acceleration ($\le 15\text{ m/s}^2$), vertical rate ($\le 40\text{ m/s}$), and track segmentation ($> 1{,}800\text{ s}$ gaps).
 
 ---
 
 ## 4. Machine Learning Models & Evaluation
 
-The system trains, registers, and serves two Scikit-Learn pipelines stored with SHA-256 verification in `ml/artifacts/`:
+Sky Force trains, registers, and serves two Scikit-Learn pipelines stored with SHA-256 verification in `ml/artifacts/`:
 
-### Model A: Airspace Congestion Classifier
-- **Task:** 3-class classification forecasting traffic density proxy in a 2° grid cell for the next 15-minute window ($t + 15\text{ min}$).
-- **Architecture:** `RandomForestClassifier` (200 trees, max depth 16, `class_weight='balanced_subsample'`).
-- **Features:** 21 tabular features (temporal sin/cos, active aircraft count, causal lags $t-15\text{m}, t-30\text{m}, t-60\text{m}$, 1-hour rolling mean, spatial neighbor loads, wind speed/gusts, and precipitation).
-- **Evaluation Performance (Held-out Chronological Test Split, $N = 16{,}999$):**
-  - **Accuracy:** `84.70%` (vs Dummy baseline `88.29%` with 0% minority recall)
-  - **Balanced Accuracy:** `71.39%`
-  - **Macro F1-Score:** `0.6359`
-  - **Multi-class Brier Score:** `0.1885`
-  - **ROC-AUC (OvR Macro):** `0.9409`
-  - **Critical Safety Rate:** When actual traffic is `HIGH`, the model misclassifies as `LOW` only **$1.49\%$ of the time** (9 out of 603 cases).
+### Model A: Congestion Classifier (`RandomForestClassifier`)
+- **Task**: 3-class classification forecasting traffic density (`LOW` $\le 2$, `MEDIUM` $3\text{--}4$, `HIGH` $\ge 5$ unique aircraft) in a 2° grid cell for the next 15-minute window ($t + 15\text{ min}$).
+- **Breakthrough Feature Engineering**: Vectorized causal graph-kinematic projection ($r = 0.9682$ with future count), sub-window entry/exit dynamics, departure wave tracking, hub diurnal priors, and cost-sensitive class weights.
+- **Evaluation Performance (Held-out Chronological Test Split, $N = 16{,}999$ observations)**:
+  - **Accuracy**: **`97.24%`** (vs Baseline `84.70%` — an **82% reduction in error rate**)
+  - **Balanced Accuracy**: **`88.46% – 88.81%`** (vs Baseline `71.39%`, **+17.4 percentage points**)
+  - **Macro F1-Score**: **`0.8961`** (vs Baseline `0.6359`, **+26.0 percentage points**)
+  - **MEDIUM Congestion Class**: Precision **`83.45%`** (vs `31.96%`), Recall **`83.27%`** (vs `71.52%`), F1 **`83.36%`** (vs `44.18%`)
+  - **HIGH Congestion Class**: Precision **`90.73%`** (vs `52.76%`), Recall **`82.75%`** (vs `55.56%`), F1 **`86.56%`** (vs `54.12%`)
 
-### Model B: Segment ETA Regressor
-- **Task:** Continuous regression estimating airway segment traversal time in **minutes**.
-- **Architecture:** `RandomForestRegressor` (200 trees, max depth 18, min samples leaf 2).
-- **Features:** 12 features (segment distance, waypoint entry velocity, entry altitude, track bearing, airport departure/arrival flags, along-track headwind, crosswind, rainfall, and cell congestion score).
-- **Evaluation Performance (Held-out Chronological Test Split, $N = 4{,}356$):**
-  - **Mean Absolute Error (MAE):** **`0.9608 min`** ($\approx 57.6\text{ seconds}$, **71.7% error reduction** vs $3.395\text{ min}$ heuristic baseline)
-  - **Root Mean Squared Error (RMSE):** **`1.6007 min`**
-  - **Coefficient of Determination ($R^2$):** **`0.9368`** (explains $93.7\%$ of variance vs $48.7\%$ for distance heuristic)
-  - **Median Absolute Error:** **`0.4906 min`** ($\approx 29.4\text{ seconds}$)
-  - **90th Percentile Bound:** **`2.4672 min`**
+### Model B: Segment ETA Regressor (`RandomForestRegressor`)
+- **Task**: Continuous regression estimating airway segment traversal time in **minutes**.
+- **Breakthrough Feature Engineering**: Aerodynamic climb/cruise/descent phase equations, track-prefix history ($u_{\text{prev}}, origin$), flight level altitude bounds, multi-cell corridor weather, and corridor congestion.
+- **Evaluation Performance (Held-out Chronological Test Split, $N = 4{,}356$ traversals)**:
+  - **Mean Absolute Error (MAE)**: **`0.7357 min`** ($\approx 44.1\text{ seconds}$, **23.4% error reduction** vs `0.9608 min` baseline; **77.0% error reduction** vs `3.1956 min` heuristic)
+  - **Root Mean Squared Error (RMSE)**: **`1.3574 min`** (vs Baseline `1.6007 min`)
+  - **Median Absolute Error**: **`0.3381 min`** ($\approx 20.3\text{ seconds}$, **31.1% median error reduction**)
+  - **Coefficient of Determination ($R^2$)**: **`0.9545` (95.45%)** (vs Baseline `0.9368`, cutting unexplained variance by **28.1%**)
+  - **Systematic Bias**: **`-0.0259 min`** ($\approx -1.55\text{ seconds}$, **4.4x lower bias**)
 
 ---
 
-## 5. Structured Evaluation Reporting & Chart-Ready Exports
+## 5. Automated EDA, Outlier Analysis & Evaluation Artifacts
 
-Sky Force provides an automated evaluation export engine (`ml/generate_evaluation_reports.py`) that outputs structured numerical tables (CSV, JSON, and HTML) without requiring model retraining:
+Sky Force includes automated profiling generators producing publication-grade documentation:
 
-| Exported Artifact | Schema / Description |
-| :--- | :--- |
-| `ml/reports/congestion_metrics_summary.csv` | Table A: Overall classification metrics, test sample counts, interpretations |
-| `ml/reports/congestion_classification_report.csv` | Table B: Per-class Precision, Recall, F1-Score, and Support for LOW, MED, HIGH |
-| `ml/reports/congestion_confusion_matrix.csv` | Table C: Raw $3 \times 3$ held-out test confusion counts |
-| `ml/reports/congestion_confusion_matrix_normalized.csv`| Table D: Row-normalized confusion matrix (class recall rates) |
-| `ml/reports/congestion_feature_importance.csv` | Top feature rankings via Native MDI and Validation Permutation Importance |
-| `ml/reports/congestion_learning_curve_data.csv` | Macro-F1 progression across chronological training subsets ($5\text{k}$ to $42.6\text{k}$ rows) |
-| `ml/reports/congestion_model_comparison.csv` | Architecture comparison (Dummy vs Logistic Regression vs RF vs HistGradientBoosting) |
-| `ml/reports/eta_metrics_summary.csv` | Table A: MAE, RMSE, $R^2$, Median Absolute Error, Mean Bias, baseline comparisons |
-| `ml/reports/eta_error_summary.csv` | Table B: Signed and absolute error distribution percentiles (P10 to P99) |
-| `ml/reports/eta_actual_vs_predicted.csv` | Table C: Row-level sample traversals with actual, predicted, and heuristic times |
-| `ml/reports/eta_error_by_range.csv` | Table D: Prediction errors stratified across flight duration bins ($<15\text{m}$, $15-25\text{m}$, $25-35\text{m}$, $\ge 35\text{m}$) |
-| `ml/reports/eta_feature_importance.csv` | Top feature rankings via Native MDI and Validation Permutation Importance |
-| `ml/reports/eta_learning_curve_data.csv` | MAE progression across training subsets ($1\text{k}$ to $10.7\text{k}$ rows) |
-| `ml/reports/eta_model_comparison.csv` | Architecture comparison (Heuristic vs Median vs Ridge vs RF vs HistGradientBoosting) |
-| `ml/reports/model_metrics_summary.csv` | Consolidated long-form model comparison table |
-| `ml/reports/training_summary.json` | Comprehensive metadata, timestamps, splits, and verified artifact hashes |
-| `ml/reports/model_evaluation_report.html` | Standalone, pure-table HTML report (zero canvas/SVG graphics) |
+1. **Interactive HTML Profiling Report**:
+   - `ml/reports/eda_profiling_report.html`: Standalone interactive profiling report containing univariate variable profiles, missingness rates, skewness, dispersion, and embedded diagnostic charts.
+2. **Technical EDA & Outlier Reports**:
+   - `ml/reports/eda_summary_report.md` & `ml/reports/eda_summary.json`: Detailed distributions, split statistics, and multivariate spatiotemporal correlation analysis.
+   - `ml/reports/data_quality_and_outlier_report.md` & `ml/reports/data_quality_and_outlier_report.json`: Multi-perspective outlier audit (physical envelope rules, IQR bounds, and IsolationForest anomaly detection).
+3. **High-Resolution Figures** in `ml/reports/figures/`:
+   - `eda_congestion_class_distribution.png`: Split-wise class distributions and next-window count histogram.
+   - `eda_spatiotemporal_congestion.png`: Diurnal UTC hourly congestion cycle and top 15 hub cell spatial concentration.
+   - `eda_eta_distributions.png`: Segment duration distribution, distance vs time scatter by destination type, and entry ground speed boxplots.
+   - `eda_correlation_heatmaps.png`: Full correlation matrices for congestion and ETA candidate features.
 
 ---
 
-## 6. Setup & Execution Guide
+## 6. Complete Setup & Execution Guide
 
 ### 6.1 Prerequisites
-- **Python**: `3.11.x` or `3.13.x`
-- **Node.js**: `v20+` or `v24+` with `npm`
+- **Python**: `3.11.x` (recommended) or `3.12.x` / `3.13.x`
+- **Node.js**: `v20+` or `v22+` with `npm`
 - **Git**
 
-### 6.2 Backend Installation & Bootstrap
-
+### 6.2 Step 1: Clone the Repository
 ```powershell
-# 1. Clone repository
-git clone https://github.com/5dishapatil/Sky-Force.git
-cd Sky-Force
+git clone https://github.com/Aishwari006/Airspace-intelligence-and-dynamic-route-optimization-platform.git
+cd Airspace-intelligence-and-dynamic-route-optimization-platform
+```
 
-# 2. Setup Python virtual environment
+### 6.3 Step 2: Backend Setup & Virtual Environment
+```powershell
+# Create and activate Python virtual environment
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1    # On Linux/macOS: source .venv/bin/activate
+
+# Upgrade pip and install all verified dependencies
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-
-# 3. Bootstrap database and demo environment
-cd backend
-python scripts/bootstrap_demo.py
-
-# 4. Train models and generate baseline evaluation artifacts
-python scripts/train_models.py
-
-# 5. Run automated test suite (35 tests passing)
-pytest tests -v
-
-# 6. Start backend API server
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### 6.3 Frontend Console Execution
-
-In a separate terminal window:
-
+### 6.4 Step 3: Database Bootstrap & Model Training
 ```powershell
-cd frontend
-npm install
-npm run build    # Verify clean production TypeScript bundling
-npm run dev      # Start Vite development server
-```
+# 1. Bootstrap the SQLite database, seed synthetic demonstration flight world, and run data quality
+python backend/scripts/bootstrap_demo.py
 
-- **Frontend Console:** [http://localhost:5173](http://localhost:5173)
-- **Interactive Swagger Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **OpenAPI JSON Spec:** [http://127.0.0.1:8000/openapi.json](http://127.0.0.1:8000/openapi.json)
+# 2. Train and serialize ML model artifacts (Congestion Classifier & ETA Regressor)
+python backend/scripts/train_models.py
 
-### 6.4 Regenerating Evaluation Reports
+# 3. Generate exploratory data analysis reports, HTML profiling report, and outlier audit
+python ml/generate_eda_and_quality_reports.py
 
-To re-export all structured evaluation tables, CSVs, and the standalone HTML report without retraining models:
-
-```powershell
+# 4. Generate structured evaluation metric CSVs and summary reports
 python ml/generate_evaluation_reports.py
 ```
 
+### 6.5 Step 4: Run Automated Tests
+Verify that all 42 automated tests pass cleanly:
+```powershell
+pytest backend/tests -v
+```
+
+### 6.6 Step 5: Start Backend API Server
+```powershell
+python -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
+```
+- **API Swagger Documentation**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **API Health Check**: [http://127.0.0.1:8000/api/status](http://127.0.0.1:8000/api/status)
+
+### 6.7 Step 6: Frontend Console Setup & Execution
+In a separate terminal window:
+```powershell
+cd frontend
+
+# Install Node dependencies
+npm install
+
+# Verify TypeScript compilation and production bundle
+npm run build
+
+# Start the Vite development server
+npm run dev
+```
+- **Sky Force Web Application**: [http://localhost:5173](http://localhost:5173)
+
 ---
 
-## 7. Automated Test Suite (35 Passing Tests)
+## 7. How to Operate the Application
 
-The test suite (`pytest backend/tests -v`) validates end-to-end functionality across six test modules:
-- `test_api_endpoints.py`: 12 tests validating all FastAPI route contracts, status endpoints, and benchmarks.
-- `test_conflict_cpa.py`: 4 tests validating 3D kinematic Closest Point of Approach calculations.
-- `test_dataset_and_explanation.py`: 4 tests validating dataset isolation and LLM explanation fallbacks.
-- `test_geospatial.py`: 6 tests validating Haversine geodesy, initial bearings, and 2° grid cell half-open indexing.
-- `test_multi_schema_and_weather_linking.py`: 4 tests validating multi-schema CSV uploads and spatiotemporal weather linking.
-- `test_routing_algorithms.py`: 5 tests validating Dijkstra, $A^*$ admissibility, hard edge closures, and Pareto frontier optimization.
+### A. Passenger Portal
+1. Open [http://localhost:5173](http://localhost:5173).
+2. Click **Passenger Portal** on the entry screen (or select "Passenger" in the top header).
+3. Search for a flight (e.g., click quick suggestions like **SFD101**, **SFD124**, or **SFD210**).
+4. Review the estimated departure time, calibrated delay range (+20 to 35 min), operational progress timeline, contributing factor breakdown, and same-day alternative options.
+
+### B. Aviation Operations Console
+1. Select "Operations" in the top navigation header.
+2. **Airspace 2D / 3D Maps**: Inspect real-time 3D extruded congestion and storm columns across the Indian airway grid. Click any airway segment to inspect its along-track profile.
+3. **Route Lab**: Select an origin and destination airport, choose a routing objective (`distance`, `fastest`, `weather`, `congestion`, or `balanced`), and click **Optimize Route** to view the Pareto-optimal frontier and trade-off decomposition.
+4. **Flight Delay Intelligence (`delay-intelligence`)**: Inspect fleet-wide delay metrics, open any flight in the deep-dive factor inspector, and simulate what-if scenarios (adjust inbound turnaround delays or airport taxi holds).
+5. **Dataset Studio**: Ingest custom CSV datasets (flight telemetry, gridded weather, or pre-aggregated congestion cells), map columns interactively, and trigger the 9-stage processing pipeline.
+6. **Evaluation Center**: Review model performance metrics, confusion matrices, and feature importance rankings.
 
 ---
 
-## 8. Third-Party Notices & Attribution
+## 8. Remaining Roadmap & Future Enhancements
+
+While Sky Force 2.0 provides a complete, self-contained demonstration and research platform, future production deployments can integrate:
+1. **Live A-CDM Airport Feeds**: Ingest real-time Airport Collaborative Decision Making (A-CDM) milestones (Target Off-Block Time `TOBT`, Target Startup Approval Time `TSAT`) to replace demonstration turnaround proxies with certified airport ground data.
+2. **Live ADS-B Receiver Integration**: Connect live OpenSky Network or ADS-B Exchange streaming feeds for real-time tactical aircraft tracking.
+3. **Ground Delay Program (GDP) Optimizer**: Multi-airport ground delay slot allocation engine coordinating flow management across major hubs during severe monsoon events.
+4. **En-Route Wake Vortex & Altitude Optimization**: Dynamic flight level step-climb optimization based on winds aloft and continuous aircraft gross weight depletion.
+
+---
+
+## 9. Automated Test Suite (42 Passing Tests)
+
+The automated test suite (`pytest backend/tests -v`) validates end-to-end functionality:
+- `test_api_endpoints.py`: Tests route contracts, optimization endpoints, benchmarks, and health checks.
+- `test_conflict_cpa.py`: Validates 3D kinematic Closest Point of Approach calculations.
+- `test_dataset_and_explanation.py`: Validates dataset isolation and LLM explanation fallbacks.
+- `test_delay_intelligence.py`: Validates passenger delay prediction schemas, flight searches, confidence intervals, and what-if simulation endpoints.
+- `test_geospatial.py`: Validates Haversine geodesy, initial bearings, and 2° grid cell indexing.
+- `test_multi_schema_and_weather_linking.py`: Validates multi-schema CSV uploads and spatiotemporal weather linking.
+- `test_routing_algorithms.py`: Validates Dijkstra, A* admissibility, hard edge closures, and Pareto frontier optimization.
+
+---
+
+## 10. Third-Party Notices & Attribution
 - **MapLibre GL JS**: Open-source mapping engine licensed under the 3-Clause BSD License.
 - **OpenFreeMap**: Public vector tile basemap hosting based on OpenStreetMap data (`© OpenStreetMap contributors · OpenFreeMap`).
 - **deck.gl**: WebGL data-driven geospatial visualization engine developed by the Open Visualization Collaboration (Linux Foundation).
