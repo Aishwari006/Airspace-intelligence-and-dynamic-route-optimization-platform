@@ -1,0 +1,77 @@
+{
+  "raw_observations_quality_pipeline": {
+    "input_rows": 276058,
+    "retained_rows": 274679,
+    "dropped": {
+      "invalid_timestamp": 0,
+      "duplicate": 825,
+      "invalid_coordinate": 275,
+      "position_jump": 279
+    },
+    "flagged": {
+      "out_of_order_delivery": 274,
+      "implausible_speed": 138,
+      "implausible_altitude": 0,
+      "missing_altitude": 5493,
+      "gap_gt_5min": 100,
+      "track_break_gt_30min": 3563
+    },
+    "missing_profile_pct": {
+      "callsign": 0.0,
+      "altitude_m": 2.0,
+      "ground_speed_mps": 0.05,
+      "heading_deg": 0.0,
+      "vertical_rate_mps": 2.0,
+      "on_ground": 0.0
+    },
+    "time_range_utc": [
+      "2026-01-15T00:06:46+00:00",
+      "2026-01-23T01:33:49+00:00"
+    ],
+    "sources": {
+      "synthetic_demo": 274679
+    },
+    "thresholds": {
+      "max_ground_speed_mps": 350.0,
+      "max_implied_speed_mps": 400.0,
+      "altitude_min_m": -500.0,
+      "altitude_max_m": 16000.0,
+      "gap_flag_s": 300,
+      "track_break_s": 1800
+    },
+    "generated_at_utc": "2026-10-27T08:20:14.346100+00:00",
+    "dataset": "synthetic_demo_v1",
+    "inferred_tracks": 3678,
+    "injected_fault_ground_truth": {
+      "missing_altitude": 5521,
+      "duplicate": 825,
+      "invalid_coordinate": 276,
+      "position_jump": 276,
+      "out_of_order": 275,
+      "implausible_speed": 138,
+      "dropout_gap": 99
+    }
+  },
+  "congestion_training_outlier_audit": {
+    "total_train_rows": 42631,
+    "isolation_forest_flagged_rows": 853,
+    "isolation_forest_minority_class_overlap": 361,
+    "isolation_forest_minority_overlap_pct": 42.32,
+    "decision": "RETAIN: High-count statistical outliers in the congestion dataset correspond to legitimate MEDIUM and HIGH traffic surge windows. Removing or winsorizing count features would destroy minority-class signal."
+  },
+  "eta_regression_outlier_audit": {
+    "total_extracted_traversals": 17223,
+    "missing_or_nonpositive_duration_removed": 0,
+    "implausible_implied_speed_outside_150_1300_kmh_removed": 0,
+    "retained_clean_traversals": 17223,
+    "train_rows": 10746,
+    "validation_rows": 2105,
+    "test_rows": 4356,
+    "isolation_forest_flagged_train_rows": 215,
+    "entry_speed_winsorization_bounds_mps": [
+      81.94,
+      259.3
+    ],
+    "decision": "FILTER IMPLAUSIBLE TARGETS + CLIP EXTREME SENSOR NOISE: Traversals with implied ground speed outside [150, 1300] km/h are removed as track-stitching artifacts. Entry speed/altitude missing values are imputed using training-split medians with explicit missingness indicators."
+  }
+}
