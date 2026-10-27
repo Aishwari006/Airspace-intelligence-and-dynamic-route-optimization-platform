@@ -1,0 +1,136 @@
+{
+  "experiment": "standalone K-Means clustering on engineered congestion features",
+  "generated_at_utc": "2026-10-27T19:36:23.123465+00:00",
+  "data_kind": "synthetic demonstration data as configured by the existing Sky Force pipeline",
+  "warning": "Unsupervised clusters do not have conventional classification accuracy. ARI/NMI/purity are post-hoc label-agreement measures only; the labels are not used for fitting, feature selection, or k selection.",
+  "selection": {
+    "method": "elbow method on training inertia; validation silhouette is reported as an independent cross-check",
+    "k_min": 2,
+    "k_max": 12,
+    "elbow_selected_k": 5,
+    "highest_validation_silhouette_k": 2,
+    "validation_silhouette_at_elbow": 0.8298819940008543
+  },
+  "configuration": {
+    "random_state": 20260115,
+    "n_init": 20,
+    "max_iter": 500,
+    "quantile_clip": [
+      0.01,
+      0.99
+    ],
+    "scaler": "RobustScaler",
+    "max_silhouette_samples": 3000
+  },
+  "features": {
+    "numeric": [
+      "aircraft_count",
+      "traffic_change",
+      "neighbor_count",
+      "count_roll4_mean",
+      "hour_sin",
+      "hour_cos",
+      "observation_count",
+      "obs_per_aircraft",
+      "count_lag1",
+      "count_lag2",
+      "count_lag4",
+      "count_roll8_mean",
+      "late_window_count",
+      "cell_hub_weight",
+      "is_airport_cell",
+      "diurnal_dep_prior",
+      "proj_ge_5",
+      "proj_eq_4",
+      "proj_ge_3",
+      "proj_eq_2",
+      "neighbor_count_lag1",
+      "mean_speed_mps",
+      "speed_std_mps",
+      "mean_altitude_m",
+      "wind_speed_10m_ms",
+      "wind_dir_sin",
+      "wind_dir_cos",
+      "precipitation_mm",
+      "cloud_cover_pct"
+    ],
+    "categorical": [],
+    "excluded_categorical_policy": "cell_id and high-cardinality identifiers are not one-hot encoded because they can dominate Euclidean distance"
+  },
+  "split_boundaries": {
+    "train": [
+      "2026-01-15T00:00:00+00:00",
+      "2026-01-20T00:00:00+00:00"
+    ],
+    "validation": [
+      "2026-01-20T00:00:00+00:00",
+      "2026-01-21T00:00:00+00:00"
+    ],
+    "test": [
+      "2026-01-21T00:00:00+00:00",
+      "2026-01-23T00:00:00+00:00"
+    ],
+    "method": "chronological; rows whose target window crosses a boundary are purged"
+  },
+  "thresholds_used_for_posthoc_label_comparison_only": {
+    "low_max": 2,
+    "medium_max": 4,
+    "method": "quantiles of occupied (count>=1) training windows: q50 / q85"
+  },
+  "rows": {
+    "train": 42631,
+    "val": 8455,
+    "test": 16999
+  },
+  "transformed_feature_count": 29,
+  "metrics_by_split": {
+    "train": {
+      "cluster_quality": {
+        "n_samples": 42631,
+        "n_clusters_assigned": 5,
+        "silhouette": 0.8374706566441734,
+        "davies_bouldin": 0.41743490674968003,
+        "calinski_harabasz": 348558.6970484849
+      },
+      "label_agreement_posthoc": {
+        "note": "Post-hoc comparison only. Congestion labels are not used to fit K-Means or select k.",
+        "adjusted_rand_index": 0.25372819067186936,
+        "normalized_mutual_information": 0.0822841833312343,
+        "cluster_purity": 0.8845206539841899
+      }
+    },
+    "validation": {
+      "cluster_quality": {
+        "n_samples": 8455,
+        "n_clusters_assigned": 5,
+        "silhouette": 0.8298819940008543,
+        "davies_bouldin": 0.4091434326940345,
+        "calinski_harabasz": 73346.62687370484
+      },
+      "label_agreement_posthoc": {
+        "note": "Post-hoc comparison only. Congestion labels are not used to fit K-Means or select k.",
+        "adjusted_rand_index": 0.2606238936402416,
+        "normalized_mutual_information": 0.08393389915055108,
+        "cluster_purity": 0.88622117090479
+      }
+    },
+    "test": {
+      "cluster_quality": {
+        "n_samples": 16999,
+        "n_clusters_assigned": 5,
+        "silhouette": 0.828924003280921,
+        "davies_bouldin": 0.42262810679317137,
+        "calinski_harabasz": 140462.62450009587
+      },
+      "label_agreement_posthoc": {
+        "note": "Post-hoc comparison only. Congestion labels are not used to fit K-Means or select k.",
+        "adjusted_rand_index": 0.2564162835919135,
+        "normalized_mutual_information": 0.0838958353948291,
+        "cluster_purity": 0.8829342902523678
+      }
+    }
+  },
+  "feature_selection_diagnostics_file": "kmeans_feature_diagnostics.csv",
+  "k_search_file": "kmeans_k_selection.csv",
+  "cluster_assignments_file": "kmeans_cluster_assignments.csv"
+}

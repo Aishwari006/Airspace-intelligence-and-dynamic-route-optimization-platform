@@ -1,0 +1,321 @@
+{
+  "model_name": "logistic_regression_tuned_standalone",
+  "task": "three-class research congestion proxy for the next observation window",
+  "data_notice": "Sky Force synthetic demonstration data; metrics are not evidence of real-world aviation accuracy.",
+  "selection": {
+    "method": "GridSearchCV with one chronological train-to-validation split",
+    "metric": "macro_f1",
+    "best_validation_macro_f1": 0.651723216421179,
+    "candidate_count": 48,
+    "search_seconds": 308.957,
+    "best_params": {
+      "clf__C": 0.1,
+      "clf__class_weight": {
+        "LOW": 1.0,
+        "MEDIUM": 3.0,
+        "HIGH": 6.0
+      }
+    }
+  },
+  "training": {
+    "random_seed": 20260115,
+    "train_rows": 42631,
+    "validation_rows": 8455,
+    "test_rows": 16999,
+    "features": [
+      "cell_id",
+      "hour_sin",
+      "hour_cos",
+      "aircraft_count",
+      "observation_count",
+      "obs_per_aircraft",
+      "count_lag1",
+      "count_lag2",
+      "count_lag4",
+      "count_roll4_mean",
+      "count_roll8_mean",
+      "traffic_change",
+      "late_window_count",
+      "early_window_count",
+      "subwindow_trend",
+      "new_dep_count",
+      "new_dep_lag1",
+      "new_dep_roll4_mean",
+      "new_dep_roll8_mean",
+      "landing_count",
+      "kinematic_proj_count",
+      "expected_proj_count",
+      "max_branch_proj_count",
+      "high_conf_proj_count",
+      "staying_proj_count",
+      "inflow_proj_count",
+      "proj_obs_count",
+      "cell_hub_weight",
+      "is_airport_cell",
+      "diurnal_dep_prior",
+      "total_expected_load",
+      "kinematic_plus_dep",
+      "proj_minus_current",
+      "branch_uncertainty",
+      "load_dist_to_med",
+      "load_dist_to_high",
+      "proj_ge_5",
+      "proj_eq_4",
+      "proj_ge_3",
+      "proj_eq_2",
+      "neighbor_count",
+      "neighbor_count_lag1",
+      "neighbor_proj_count",
+      "mean_speed_mps",
+      "speed_std_mps",
+      "mean_altitude_m",
+      "mean_vertical_rate_mps",
+      "wind_speed_10m_ms",
+      "wind_dir_sin",
+      "wind_dir_cos",
+      "precipitation_mm",
+      "cloud_cover_pct",
+      "wind_gusts_10m_ms",
+      "weather_missing"
+    ],
+    "numeric_features": [
+      "hour_sin",
+      "hour_cos",
+      "aircraft_count",
+      "observation_count",
+      "obs_per_aircraft",
+      "count_lag1",
+      "count_lag2",
+      "count_lag4",
+      "count_roll4_mean",
+      "count_roll8_mean",
+      "traffic_change",
+      "late_window_count",
+      "early_window_count",
+      "subwindow_trend",
+      "new_dep_count",
+      "new_dep_lag1",
+      "new_dep_roll4_mean",
+      "new_dep_roll8_mean",
+      "landing_count",
+      "kinematic_proj_count",
+      "expected_proj_count",
+      "max_branch_proj_count",
+      "high_conf_proj_count",
+      "staying_proj_count",
+      "inflow_proj_count",
+      "proj_obs_count",
+      "cell_hub_weight",
+      "is_airport_cell",
+      "diurnal_dep_prior",
+      "total_expected_load",
+      "kinematic_plus_dep",
+      "proj_minus_current",
+      "branch_uncertainty",
+      "load_dist_to_med",
+      "load_dist_to_high",
+      "proj_ge_5",
+      "proj_eq_4",
+      "proj_ge_3",
+      "proj_eq_2",
+      "neighbor_count",
+      "neighbor_count_lag1",
+      "neighbor_proj_count",
+      "mean_speed_mps",
+      "speed_std_mps",
+      "mean_altitude_m",
+      "mean_vertical_rate_mps",
+      "wind_speed_10m_ms",
+      "wind_dir_sin",
+      "wind_dir_cos",
+      "precipitation_mm",
+      "cloud_cover_pct",
+      "wind_gusts_10m_ms",
+      "weather_missing"
+    ],
+    "categorical_features": [
+      "cell_id"
+    ],
+    "fit_seconds": 5.535,
+    "split_boundaries": {
+      "train": [
+        "2026-01-15T00:00:00+00:00",
+        "2026-01-20T00:00:00+00:00"
+      ],
+      "validation": [
+        "2026-01-20T00:00:00+00:00",
+        "2026-01-21T00:00:00+00:00"
+      ],
+      "test": [
+        "2026-01-21T00:00:00+00:00",
+        "2026-01-23T00:00:00+00:00"
+      ],
+      "method": "chronological; rows whose target window crosses a boundary are purged"
+    }
+  },
+  "metrics": {
+    "train": {
+      "n": 42631,
+      "accuracy": 0.8896577607844057,
+      "balanced_accuracy": 0.706488380775828,
+      "macro_f1": 0.6615426805574589,
+      "weighted_f1": 0.8978761809068764,
+      "per_class": {
+        "LOW": {
+          "precision": 0.9706776475790405,
+          "recall": 0.9314469078179697,
+          "f1": 0.9506577166675689,
+          "support": 37708
+        },
+        "MEDIUM": {
+          "precision": 0.4092444069227522,
+          "recall": 0.5405631446891552,
+          "f1": 0.4658258258258258,
+          "support": 3587
+        },
+        "HIGH": {
+          "precision": 0.5061439438267993,
+          "recall": 0.6474550898203593,
+          "f1": 0.5681444991789819,
+          "support": 1336
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "LOW",
+          "MEDIUM",
+          "HIGH"
+        ],
+        "matrix": [
+          [
+            35123,
+            2379,
+            206
+          ],
+          [
+            1010,
+            1939,
+            638
+          ],
+          [
+            51,
+            420,
+            865
+          ]
+        ]
+      },
+      "brier_multiclass": 0.1445933573237575,
+      "roc_auc_ovr_macro": 0.950543885971042
+    },
+    "validation": {
+      "n": 8455,
+      "accuracy": 0.8888231815493791,
+      "balanced_accuracy": 0.6898869747489536,
+      "macro_f1": 0.651723216421179,
+      "weighted_f1": 0.8976133024328444,
+      "per_class": {
+        "LOW": {
+          "precision": 0.9713251670378619,
+          "recall": 0.9312691845722675,
+          "f1": 0.950875519520338,
+          "support": 7493
+        },
+        "MEDIUM": {
+          "precision": 0.39213602550478216,
+          "recall": 0.5426470588235294,
+          "f1": 0.4552745219000617,
+          "support": 680
+        },
+        "HIGH": {
+          "precision": 0.509090909090909,
+          "recall": 0.5957446808510638,
+          "f1": 0.5490196078431373,
+          "support": 282
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "LOW",
+          "MEDIUM",
+          "HIGH"
+        ],
+        "matrix": [
+          [
+            6978,
+            470,
+            45
+          ],
+          [
+            194,
+            369,
+            117
+          ],
+          [
+            12,
+            102,
+            168
+          ]
+        ]
+      },
+      "brier_multiclass": 0.14716686644432558,
+      "roc_auc_ovr_macro": 0.9475951884995456
+    },
+    "test": {
+      "n": 16999,
+      "accuracy": 0.8913465497970469,
+      "balanced_accuracy": 0.7084167711126382,
+      "macro_f1": 0.6566645528478068,
+      "weighted_f1": 0.8990717680383015,
+      "per_class": {
+        "LOW": {
+          "precision": 0.9731078458552814,
+          "recall": 0.9354387367579452,
+          "f1": 0.9539015524679825,
+          "support": 15009
+        },
+        "MEDIUM": {
+          "precision": 0.40842598010532477,
+          "recall": 0.5032444124008651,
+          "f1": 0.4509043927648579,
+          "support": 1387
+        },
+        "HIGH": {
+          "precision": 0.4802784222737819,
+          "recall": 0.6865671641791045,
+          "f1": 0.5651877133105802,
+          "support": 603
+        }
+      },
+      "confusion_matrix": {
+        "labels": [
+          "LOW",
+          "MEDIUM",
+          "HIGH"
+        ],
+        "matrix": [
+          [
+            14040,
+            845,
+            124
+          ],
+          [
+            365,
+            698,
+            324
+          ],
+          [
+            23,
+            166,
+            414
+          ]
+        ]
+      },
+      "brier_multiclass": 0.14534615840763163,
+      "roc_auc_ovr_macro": 0.9505660657819708
+    }
+  },
+  "warnings": [
+    "'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', l1_ratio set to a float between 0 and 1 instead of penalty='elasticnet', and C=np.inf instead of penalty=None."
+  ],
+  "isolation_note": "Writes only to this standalone output directory; does not register or replace active models."
+}

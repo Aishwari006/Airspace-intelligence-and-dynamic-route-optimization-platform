@@ -1,0 +1,12 @@
+model,evaluation_type,Accuracy,Balanced accuracy,Macro-F1,Weighted-F1,Macro ROC-AUC,Multiclass Brier score,metric,value
+Logistic Regression,supervised classification,0.8913465497970469,0.7084167711126382,0.6566645528478068,0.8990717680383015,0.9505660657819708,0.14534615840763163,,
+Random Forest,supervised classification,0.97241,0.888124,0.896085,,0.9892,0.0482,,
+K-Means,cluster_quality,,,,,,,n_samples,16999
+K-Means,cluster_quality,,,,,,,n_clusters_assigned,5
+K-Means,cluster_quality,,,,,,,silhouette,0.828924003280921
+K-Means,cluster_quality,,,,,,,davies_bouldin,0.42262810679317137
+K-Means,cluster_quality,,,,,,,calinski_harabasz,140462.62450009587
+K-Means,label_agreement_posthoc,,,,,,,note,Post-hoc comparison only. Congestion labels are not used to fit K-Means or select k.
+K-Means,label_agreement_posthoc,,,,,,,adjusted_rand_index,0.2564162835919135
+K-Means,label_agreement_posthoc,,,,,,,normalized_mutual_information,0.0838958353948291
+K-Means,label_agreement_posthoc,,,,,,,cluster_purity,0.8829342902523678

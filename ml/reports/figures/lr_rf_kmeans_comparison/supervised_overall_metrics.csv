@@ -1,0 +1,31 @@
+model,split,metric,metric_label,value,n_samples
+Logistic Regression,train,accuracy,Accuracy,0.8896577607844057,42631
+Logistic Regression,train,balanced_accuracy,Balanced accuracy,0.706488380775828,42631
+Logistic Regression,train,macro_f1,Macro-F1,0.6615426805574589,42631
+Logistic Regression,train,weighted_f1,Weighted-F1,0.8978761809068764,42631
+Logistic Regression,train,roc_auc_ovr_macro,Macro ROC-AUC,0.950543885971042,42631
+Logistic Regression,train,brier_multiclass,Multiclass Brier score,0.1445933573237575,42631
+Logistic Regression,validation,accuracy,Accuracy,0.8888231815493791,8455
+Logistic Regression,validation,balanced_accuracy,Balanced accuracy,0.6898869747489536,8455
+Logistic Regression,validation,macro_f1,Macro-F1,0.651723216421179,8455
+Logistic Regression,validation,weighted_f1,Weighted-F1,0.8976133024328444,8455
+Logistic Regression,validation,roc_auc_ovr_macro,Macro ROC-AUC,0.9475951884995456,8455
+Logistic Regression,validation,brier_multiclass,Multiclass Brier score,0.14716686644432558,8455
+Logistic Regression,test,accuracy,Accuracy,0.8913465497970469,16999
+Logistic Regression,test,balanced_accuracy,Balanced accuracy,0.7084167711126382,16999
+Logistic Regression,test,macro_f1,Macro-F1,0.6566645528478068,16999
+Logistic Regression,test,weighted_f1,Weighted-F1,0.8990717680383015,16999
+Logistic Regression,test,roc_auc_ovr_macro,Macro ROC-AUC,0.9505660657819708,16999
+Logistic Regression,test,brier_multiclass,Multiclass Brier score,0.14534615840763163,16999
+Random Forest,validation,accuracy,Accuracy,0.9695,8455
+Random Forest,validation,balanced_accuracy,Balanced accuracy,0.8841,8455
+Random Forest,validation,macro_f1,Macro-F1,0.8959,8455
+Random Forest,validation,weighted_f1,Weighted-F1,,8455
+Random Forest,validation,roc_auc_ovr_macro,Macro ROC-AUC,0.9361978258251921,8455
+Random Forest,validation,brier_multiclass,Multiclass Brier score,0.18741208035572024,8455
+Random Forest,test,accuracy,Accuracy,0.97241,16999
+Random Forest,test,balanced_accuracy,Balanced accuracy,0.888124,16999
+Random Forest,test,macro_f1,Macro-F1,0.896085,16999
+Random Forest,test,weighted_f1,Weighted-F1,,16999
+Random Forest,test,roc_auc_ovr_macro,Macro ROC-AUC,0.9892,16999
+Random Forest,test,brier_multiclass,Multiclass Brier score,0.0482,16999

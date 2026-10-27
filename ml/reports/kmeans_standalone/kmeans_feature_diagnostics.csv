@@ -1,0 +1,55 @@
+feature,role,training_missing_pct,training_unique_values,decision
+aircraft_count,numeric,0.0,15,selected
+traffic_change,numeric,0.2088,17,selected
+neighbor_count,numeric,0.0,45,selected
+count_roll4_mean,numeric,0.0,46,selected
+hour_sin,numeric,0.0,86,selected
+hour_cos,numeric,0.0,89,selected
+observation_count,numeric,0.0,71,selected
+obs_per_aircraft,numeric,0.0,177,selected
+count_lag1,numeric,0.2088,15,selected
+count_lag2,numeric,0.4175,15,selected
+count_lag4,numeric,0.8351,15,selected
+count_roll8_mean,numeric,0.0,95,selected
+late_window_count,numeric,0.0,8,selected
+early_window_count,numeric,0.0,8,dropped: |training correlation| >= 0.98 with an earlier selected feature
+subwindow_trend,numeric,0.0,1,dropped: constant or all-missing in training data
+new_dep_count,numeric,0.0,1,dropped: constant or all-missing in training data
+new_dep_lag1,numeric,0.0,1,dropped: constant or all-missing in training data
+new_dep_roll4_mean,numeric,0.0,1,dropped: constant or all-missing in training data
+new_dep_roll8_mean,numeric,0.0,1,dropped: constant or all-missing in training data
+landing_count,numeric,0.0,1,dropped: constant or all-missing in training data
+kinematic_proj_count,numeric,0.0,15,dropped: |training correlation| >= 0.98 with an earlier selected feature
+expected_proj_count,numeric,0.0,15,dropped: |training correlation| >= 0.98 with an earlier selected feature
+max_branch_proj_count,numeric,0.0,15,dropped: |training correlation| >= 0.98 with an earlier selected feature
+high_conf_proj_count,numeric,0.0,15,dropped: |training correlation| >= 0.98 with an earlier selected feature
+staying_proj_count,numeric,0.0,8,dropped: |training correlation| >= 0.98 with an earlier selected feature
+inflow_proj_count,numeric,0.0,8,dropped: |training correlation| >= 0.98 with an earlier selected feature
+proj_obs_count,numeric,0.0,71,dropped: |training correlation| >= 0.98 with an earlier selected feature
+cell_hub_weight,numeric,0.0,9,selected
+is_airport_cell,numeric,0.0,2,selected
+diurnal_dep_prior,numeric,0.0,85,selected
+total_expected_load,numeric,0.0,567,dropped: |training correlation| >= 0.98 with an earlier selected feature
+kinematic_plus_dep,numeric,0.0,570,dropped: |training correlation| >= 0.98 with an earlier selected feature
+proj_minus_current,numeric,0.0,1,dropped: constant or all-missing in training data
+branch_uncertainty,numeric,0.0,1,dropped: constant or all-missing in training data
+load_dist_to_med,numeric,0.0,554,dropped: |training correlation| >= 0.98 with an earlier selected feature
+load_dist_to_high,numeric,0.0,553,dropped: |training correlation| >= 0.98 with an earlier selected feature
+proj_ge_5,numeric,0.0,2,selected
+proj_eq_4,numeric,0.0,2,selected
+proj_ge_3,numeric,0.0,2,selected
+proj_eq_2,numeric,0.0,2,selected
+neighbor_count_lag1,numeric,0.2088,45,selected
+neighbor_proj_count,numeric,0.0,45,dropped: |training correlation| >= 0.98 with an earlier selected feature
+mean_speed_mps,numeric,64.0872,14928,selected
+speed_std_mps,numeric,65.9614,14386,selected
+mean_altitude_m,numeric,64.1294,14592,selected
+mean_vertical_rate_mps,numeric,0.0,1,dropped: constant or all-missing in training data
+wind_speed_10m_ms,numeric,0.0,898,selected
+wind_dir_sin,numeric,0.0,347,selected
+wind_dir_cos,numeric,0.0,364,selected
+precipitation_mm,numeric,0.0,212,selected
+cloud_cover_pct,numeric,0.0,543,selected
+wind_gusts_10m_ms,numeric,0.0,1322,dropped: |training correlation| >= 0.98 with an earlier selected feature
+weather_missing,numeric,0.0,1,dropped: constant or all-missing in training data
+cell_id,categorical,0.0,89,dropped: identifier/high-cardinality key; not one-hot encoded for Euclidean clustering

@@ -1,0 +1,8 @@
+{
+  "clf__C": 0.1,
+  "clf__class_weight": {
+    "LOW": 1.0,
+    "MEDIUM": 3.0,
+    "HIGH": 6.0
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "project_root": "D:\\aiml project\\Sky-Force",
+  "classification_metrics_source": "D:\\aiml project\\Sky-Force\\ml\\reports\\congestion_metrics.json",
+  "logistic_regression_source_used": "Tuned Logistic Regression (ml\\reports\\logistic_regression_tuning\\logistic_regression_metrics.json)",
+  "kmeans_metrics_source": "D:\\aiml project\\Sky-Force\\ml\\reports\\kmeans_standalone\\kmeans_metrics.json",
+  "kmeans_k_selection_source": "D:\\aiml project\\Sky-Force\\ml\\reports\\kmeans_standalone\\kmeans_k_selection.csv",
+  "output_directory": "D:\\aiml project\\Sky-Force\\ml\\reports\\figures\\lr_rf_kmeans_comparison",
+  "interpretation_note": "Do not compare classification accuracy/F1 directly with K-Means silhouette or cluster-quality metrics. K-Means ARI/NMI/purity are post-hoc label agreement, not trained classification scores."
+}

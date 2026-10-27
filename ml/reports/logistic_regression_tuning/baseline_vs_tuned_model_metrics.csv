@@ -1,0 +1,55 @@
+model,split,metric,value,source
+Existing Logistic Regression,validation,accuracy,0.8290952099349498,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Logistic Regression,validation,balanced_accuracy,0.7270733572815183,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Logistic Regression,validation,macro_f1,0.6103919436303499,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Logistic Regression,validation,roc_auc_ovr_macro,0.9366791047619936,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Logistic Regression,validation,brier_multiclass,0.22362970582980551,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,validation,accuracy,0.8369012418687167,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,validation,balanced_accuracy,0.7074249362446716,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,validation,macro_f1,0.6251281770577125,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,validation,weighted_f1,0.8651217035331977,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,validation,roc_auc_ovr_macro,0.9355003614200873,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,validation,brier_multiclass,0.1977042673556839,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,validation,accuracy,0.8581904198698994,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,validation,balanced_accuracy,0.6682273631071566,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,validation,macro_f1,0.6106276934088308,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,validation,roc_auc_ovr_macro,0.9394778024497471,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,validation,brier_multiclass,0.1832333460218825,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,validation,accuracy,0.88622117090479,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,validation,balanced_accuracy,0.3333333333333333,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,validation,macro_f1,0.31322631886965974,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,validation,roc_auc_ovr_macro,0.5,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,validation,brier_multiclass,0.22755765819041987,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Tuned Logistic Regression,validation,accuracy,0.8888231815493791,this standalone tuned run
+Tuned Logistic Regression,validation,balanced_accuracy,0.6898869747489536,this standalone tuned run
+Tuned Logistic Regression,validation,macro_f1,0.651723216421179,this standalone tuned run
+Tuned Logistic Regression,validation,weighted_f1,0.8976133024328444,this standalone tuned run
+Tuned Logistic Regression,validation,roc_auc_ovr_macro,0.9475951884995456,this standalone tuned run
+Tuned Logistic Regression,validation,brier_multiclass,0.14716686644432558,this standalone tuned run
+Existing Logistic Regression,test,accuracy,0.8338137537502206,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Logistic Regression,test,balanced_accuracy,0.7445990913201723,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Logistic Regression,test,macro_f1,0.6174589807244866,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Logistic Regression,test,roc_auc_ovr_macro,0.9354330587066029,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Logistic Regression,test,brier_multiclass,0.22064975483059346,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,test,accuracy,0.8470498264603801,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,test,balanced_accuracy,0.7139041150064962,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,test,macro_f1,0.6359324095553648,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,test,weighted_f1,0.8718067225647691,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,test,roc_auc_ovr_macro,0.9408574771500179,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Random Forest,test,brier_multiclass,0.18850304096405268,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,test,accuracy,0.8710512383081358,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,test,balanced_accuracy,0.6864565038277345,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,test,macro_f1,0.6334247338097312,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,test,roc_auc_ovr_macro,0.943435278936795,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Histogram Gradient Boosting,test,brier_multiclass,0.17004979871577672,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,test,accuracy,0.8829342902523678,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,test,balanced_accuracy,0.3333333333333333,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,test,macro_f1,0.31260934766308424,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,test,roc_auc_ovr_macro,0.5,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Existing Dummy Classifier,test,brier_multiclass,0.23413141949526442,D:\aiml project\Sky-Force\ml\reports\congestion_metrics.json
+Tuned Logistic Regression,test,accuracy,0.8913465497970469,this standalone tuned run
+Tuned Logistic Regression,test,balanced_accuracy,0.7084167711126382,this standalone tuned run
+Tuned Logistic Regression,test,macro_f1,0.6566645528478068,this standalone tuned run
+Tuned Logistic Regression,test,weighted_f1,0.8990717680383015,this standalone tuned run
+Tuned Logistic Regression,test,roc_auc_ovr_macro,0.9505660657819708,this standalone tuned run
+Tuned Logistic Regression,test,brier_multiclass,0.14534615840763163,this standalone tuned run
