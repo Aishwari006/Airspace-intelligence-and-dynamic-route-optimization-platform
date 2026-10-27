@@ -1,0 +1,16 @@
+metric,value,unit,evaluation_split,sample_count,interpretation
+Mean Absolute Error (MAE),0.735682,minutes,test,4356,Average magnitude of prediction error in minutes (lower is better)
+Root Mean Squared Error (RMSE),1.220425,minutes,test,4356,Square root of mean squared error; penalizes larger flight deviations
+Coefficient of Determination (R²),0.963251,unitless,test,4356,Proportion of target variance explained by model versus horizontal mean
+Median Absolute Error,0.374907,minutes,test,4356,50th percentile of absolute error; robust against extreme outliers
+Mean Signed Error (Bias),-0.023273,minutes,test,4356,Average signed deviation (predicted - actual); negative indicates slight underestimation
+Median Signed Error,0.045272,minutes,test,4356,Median signed deviation (predicted - actual)
+Error Standard Deviation,1.220343,minutes,test,4356,Spread of signed prediction errors around the mean bias
+90th Percentile Absolute Error,1.899885,minutes,test,4356,90% of all airway segment traversals are predicted within this margin
+95th Percentile Absolute Error,2.772441,minutes,test,4356,95% of test segment traversals are predicted within this margin
+99th Percentile Absolute Error,4.760577,minutes,test,4356,Near-worst-case bound covering 99% of test segment traversals
+Minimum Absolute Error,0.000394,minutes,test,4356,Closest single prediction to actual observed segment duration
+Maximum Absolute Error,9.340713,minutes,test,4356,Worst single prediction error observed across all test segments
+Baseline Heuristic MAE (780 km/h),3.394806,minutes,test,4356,Standard nominal cruise-speed baseline error (distance / 780 km/h)
+Baseline Heuristic RMSE (780 km/h),4.561582,minutes,test,4356,Nominal cruise-speed baseline RMSE
+Baseline Heuristic R² (780 km/h),0.486599,unitless,test,4356,Variance explained by nominal cruise-speed baseline

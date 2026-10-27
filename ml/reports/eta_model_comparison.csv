@@ -1,0 +1,11 @@
+model_name,split,n_samples,fit_seconds,mae_min,rmse_min,r2,bias_min
+heuristic_distance_over_speed,validation,2105,not_fitted,3.362956,4.408829,0.510377,-2.147716
+heuristic_distance_over_speed,test,4356,not_fitted,3.394806,4.561582,0.486599,-2.3492
+median_baseline,validation,2105,0.01,5.062664,6.348907,-0.015343,-0.780453
+median_baseline,test,4356,0.01,5.120769,6.43113,-0.020471,-0.91086
+ridge,validation,2105,0.01,1.761976,2.295871,0.867227,0.015859
+ridge,test,4356,0.01,1.78665,2.331885,0.865835,-0.073784
+random_forest,validation,2105,0.83,0.7412,1.3685,0.9528,0.000396
+random_forest,test,4356,0.83,0.735682,1.357412,0.954518,-0.02589
+hist_gradient_boosting,validation,2105,0.78,0.920457,1.554053,0.939166,-0.00927
+hist_gradient_boosting,test,4356,0.78,0.995384,1.602159,0.936666,-0.044851

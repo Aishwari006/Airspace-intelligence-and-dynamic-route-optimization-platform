@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Force — Structured Machine Learning Evaluation Report</title>
+<style>
+:root {
+  --bg-primary: #0a0e17;
+  --bg-surface: #111827;
+  --bg-card: #1f2937;
+  --border-subtle: #374151;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-accent: #38bdf8;
+  --text-emerald: #34d399;
+  --text-amber: #fbbf24;
+  --text-rose: #f87171;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  padding: 2.5rem 1.5rem;
+}
+.container { max-width: 1200px; margin: 0 auto; }
+header.report-header {
+  border-bottom: 2px solid var(--border-subtle);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--text-accent);
+  margin-bottom: 0.5rem;
+}
+h1 { font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+.subtitle { color: var(--text-muted); font-size: 1rem; max-width: 800px; }
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.metadata-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 1rem;
+}
+.metadata-card span { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); }
+.metadata-card strong { display: block; font-size: 1.1rem; color: #fff; margin-top: 0.25rem; font-family: var(--font-mono); }
+section.report-section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+section.report-section h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+section.report-section h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-accent);
+  margin: 1.5rem 0 0.5rem 0;
+}
+p.section-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
+.table-container { overflow-x: auto; margin-bottom: 1.5rem; }
+table.eval-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+table.eval-table caption {
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+table.eval-table th {
+  background: var(--bg-card);
+  color: var(--text-muted);
+  padding: 0.6rem 0.8rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-subtle);
+}
+table.eval-table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+  font-family: var(--font-mono);
+}
+table.eval-table tr:hover td { background: rgba(56, 189, 248, 0.04); }
+.disclaimer-box {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  color: #fde68a;
+  font-size: 0.875rem;
+}
+.disclaimer-box strong { display: block; color: var(--text-amber); margin-bottom: 0.25rem; }
+.artifact-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+.artifact-list li {
+  background: var(--bg-card);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.artifact-list a { color: var(--text-accent); text-decoration: none; }
+.artifact-list a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="report-header">
+  <span class="badge">Aviation Intelligence · Scientific Validation</span>
+  <h1>Sky Force Machine Learning Evaluation Report</h1>
+  <p class="subtitle">
+    Empirical evaluation results, error distributions, confusion matrices, and feature importance rankings
+    for airspace congestion forecasting and segment travel-time prediction.
+  </p>
+</header>
+
+<div class="metadata-grid">
+  <div class="metadata-card">
+    <span>Report Generated</span>
+    <strong>2026-10-27 19:14:49 UTC</strong>
+  </div>
+  <div class="metadata-card">
+    <span>Evaluation Split</span>
+    <strong>Strict Chronological Test</strong>
+  </div>
+  <div class="metadata-card">
+    <span>Congestion Model</span>
+    <strong>Random Forest (16,999 test rows)</strong>
+  </div>
+  <div class="metadata-card">
+    <span>ETA Model</span>
+    <strong>Random Forest (4,356 test rows)</strong>
+  </div>
+</div>
+
+<div class="disclaimer-box">
+  <strong>Scientific Integrity & Demonstration Notice</strong>
+  Models evaluated in this report were trained and tested on reproducible synthetic demonstration data representing Indian airspace corridors.
+  Congestion predictions represent research traffic-density proxies (unique-aircraft counts within 15-minute grid windows),
+  NOT official ATC capacity determinations. Traversal estimates represent segment operational flight times and must not be used for tactical separation.
+</div>
+
+<section class="report-section">
+  <h2>1. Airspace Congestion Classification Model (Model A)</h2>
+  <p class="section-desc">
+    Target: <code>next_window_class</code> (LOW &le; 2 aircraft, MEDIUM 3&ndash;4 aircraft, HIGH &ge; 5 aircraft) in the succeeding 15-minute window.
+    Evaluated on 16,999 held-out chronological test observations.
+  </p>
+
+  <h3>Table A &mdash; Overall Classification Performance</h3>
+  <div class='table-container'><table id='tbl-congestion-summary' class='eval-table'><caption>Overall Metrics (Held-out Test Partition)</caption><thead><tr><th>Metric</th><th>Value</th><th>Evaluation Split</th><th>Sample Count</th><th>Interpretation</th></tr></thead><tbody><tr><td>Accuracy</td><td>0.9724</td><td>test</td><td>16999</td><td>Overall proportion of correct predictions across all classes</td></tr><tr><td>Balanced Accuracy</td><td>0.8839</td><td>test</td><td>16999</td><td>Unweighted average recall across classes (guards against majority-class dominance)</td></tr><tr><td>Macro F1</td><td>0.8952</td><td>test</td><td>16999</td><td>Unweighted harmonic mean of precision and recall averaged across classes</td></tr><tr><td>Weighted F1</td><td>0.9724</td><td>test</td><td>16999</td><td>F1-score averaged according to each class's test support</td></tr><tr><td>Macro Precision</td><td>0.9090</td><td>test</td><td>16999</td><td>Unweighted average precision across classes</td></tr><tr><td>Weighted Precision</td><td>0.9726</td><td>test</td><td>16999</td><td>Precision averaged according to class support</td></tr><tr><td>Macro Recall</td><td>0.8839</td><td>test</td><td>16999</td><td>Unweighted average recall across classes (identical to balanced accuracy)</td></tr><tr><td>Weighted Recall</td><td>0.9724</td><td>test</td><td>16999</td><td>Recall averaged according to class support (identical to accuracy)</td></tr><tr><td>Multi-class Brier Score</td><td>0.0571</td><td>test</td><td>16999</td><td>Mean squared probability calibration error (lower is better, range [0, 2])</td></tr><tr><td>ROC-AUC OvR Macro</td><td>0.9558</td><td>test</td><td>16999</td><td>One-vs-Rest Area Under the ROC Curve, macro-averaged (chance = 0.5)</td></tr></tbody></table></div>
+
+  <h3>Table B &mdash; Per-Class Classification Report</h3>
+  <div class='table-container'><table id='tbl-congestion-per-class' class='eval-table'><caption>Per-Class Performance with Support</caption><thead><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1 Score</th><th>Support</th></tr></thead><tbody><tr><td>LOW</td><td>0.9889</td><td>0.9901</td><td>0.9895</td><td>15009</td></tr><tr><td>MEDIUM</td><td>0.8208</td><td>0.8522</td><td>0.8362</td><td>1387</td></tr><tr><td>HIGH</td><td>0.9173</td><td>0.8093</td><td>0.8599</td><td>603</td></tr><tr><td>Macro Average</td><td>0.9090</td><td>0.8839</td><td>0.8952</td><td>16999</td></tr><tr><td>Weighted Average</td><td>0.9726</td><td>0.9724</td><td>0.9724</td><td>16999</td></tr></tbody></table></div>
+
+  <h3>Table C &mdash; Confusion Matrix (Raw Test Counts)</h3>
+  <div class='table-container'><table id='tbl-congestion-cm' class='eval-table'><caption>Actual Classes (Rows) vs Predicted Classes (Columns)</caption><thead><tr><th>Actual Class</th><th>Low</th><th>Medium</th><th>High</th></tr></thead><tbody><tr><td>LOW</td><td>14860</td><td>149</td><td>0</td></tr><tr><td>MEDIUM</td><td>161</td><td>1182</td><td>44</td></tr><tr><td>HIGH</td><td>6</td><td>109</td><td>488</td></tr></tbody></table></div>
+
+  <h3>Table D &mdash; Normalized Confusion Matrix (Row Normalized)</h3>
+  <div class='table-container'><table id='tbl-congestion-cm-norm' class='eval-table'><caption>Row Normalized by Actual Class Support (Recall across Rows)</caption><thead><tr><th>Actual Class</th><th>Low</th><th>Medium</th><th>High</th></tr></thead><tbody><tr><td>LOW</td><td>0.9901</td><td>0.0099</td><td>0.0000</td></tr><tr><td>MEDIUM</td><td>0.1161</td><td>0.8522</td><td>0.0317</td></tr><tr><td>HIGH</td><td>0.0100</td><td>0.1808</td><td>0.8093</td></tr></tbody></table></div>
+
+  <h3>Table E &mdash; Candidate Model Comparison</h3>
+  <div class='table-container'><table id='tbl-congestion-candidates' class='eval-table'><caption>Candidate Architecture Comparison on Validation and Test Sets</caption><thead><tr><th>Model Name</th><th>Split</th><th>N Samples</th><th>Fit Seconds</th><th>Accuracy</th><th>Balanced Accuracy</th><th>Macro F1</th><th>Brier Multiclass</th><th>Roc Auc Ovr Macro</th></tr></thead><tbody><tr><td>dummy_most_frequent</td><td>validation</td><td>8455</td><td>0.2200</td><td>0.8862</td><td>0.3333</td><td>0.3132</td><td>0.2276</td><td>0.5000</td></tr><tr><td>dummy_most_frequent</td><td>test</td><td>16999</td><td>0.2200</td><td>0.8829</td><td>0.3333</td><td>0.3126</td><td>0.2341</td><td>0.5000</td></tr><tr><td>logistic_regression</td><td>validation</td><td>8455</td><td>6.5700</td><td>0.8260</td><td>0.7228</td><td>0.6082</td><td>0.2231</td><td>0.9366</td></tr><tr><td>logistic_regression</td><td>test</td><td>16999</td><td>6.5700</td><td>0.8338</td><td>0.7439</td><td>0.6189</td><td>0.2187</td><td>0.9370</td></tr><tr><td>random_forest</td><td>validation</td><td>8455</td><td>2.3800</td><td>0.9695</td><td>0.8841</td><td>0.8959</td><td>0.1874</td><td>0.9362</td></tr><tr><td>random_forest</td><td>test</td><td>16999</td><td>2.3800</td><td>0.9724</td><td>0.8881</td><td>0.8961</td><td>0.0482</td><td>0.9892</td></tr><tr><td>hist_gradient_boosting</td><td>validation</td><td>8455</td><td>10.6900</td><td>0.8656</td><td>0.6659</td><td>0.6132</td><td>0.1774</td><td>0.9415</td></tr><tr><td>hist_gradient_boosting</td><td>test</td><td>16999</td><td>10.6900</td><td>0.8742</td><td>0.6851</td><td>0.6399</td><td>0.1672</td><td>0.9452</td></tr></tbody></table></div>
+
+  <h3>Table F &mdash; Feature Importance Ranking</h3>
+  <div class='table-container'><table id='tbl-congestion-features' class='eval-table'><caption>Top 15 Features by Importance (Native MDI and Validation Permutation)</caption><thead><tr><th>Rank</th><th>Feature Name</th><th>Importance Value</th><th>Importance Method</th><th>Model Name</th><th>Model Version</th></tr></thead><tbody><tr><td>1</td><td>total_expected_load</td><td>0.0634</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>2</td><td>load_dist_to_high</td><td>0.0578</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>3</td><td>load_dist_to_med</td><td>0.0511</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>4</td><td>kinematic_plus_dep</td><td>0.0425</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>5</td><td>obs_per_aircraft</td><td>0.0413</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>6</td><td>count_roll4_mean</td><td>0.0395</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>7</td><td>count_roll8_mean</td><td>0.0389</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>8</td><td>kinematic_proj_count</td><td>0.0347</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>9</td><td>neighbor_proj_count</td><td>0.0345</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>10</td><td>aircraft_count</td><td>0.0327</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>11</td><td>neighbor_count</td><td>0.0320</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>12</td><td>observation_count</td><td>0.0309</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>13</td><td>expected_proj_count</td><td>0.0308</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>14</td><td>cell_id</td><td>0.0294</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr><tr><td>15</td><td>proj_obs_count</td><td>0.0291</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190831Z</td></tr></tbody></table></div>
+</section>
+
+<section class="report-section">
+  <h2>2. Airway Segment Traversal Time Regression (Model B)</h2>
+  <p class="section-desc">
+    Target: <code>traversal_duration_min</code> in minutes between consecutive airway waypoints.
+    Evaluated on 4,356 held-out chronological test segment traversals.
+  </p>
+
+  <h3>Table A &mdash; Overall ETA Regression Metrics</h3>
+  <div class='table-container'><table id='tbl-eta-summary' class='eval-table'><caption>Overall Regression Metrics vs Heuristic Baseline</caption><thead><tr><th>Metric</th><th>Value</th><th>Unit</th><th>Evaluation Split</th><th>Sample Count</th><th>Interpretation</th></tr></thead><tbody><tr><td>Mean Absolute Error (MAE)</td><td>0.7357</td><td>minutes</td><td>test</td><td>4356</td><td>Average magnitude of prediction error in minutes (lower is better)</td></tr><tr><td>Root Mean Squared Error (RMSE)</td><td>1.2204</td><td>minutes</td><td>test</td><td>4356</td><td>Square root of mean squared error; penalizes larger flight deviations</td></tr><tr><td>Coefficient of Determination (R²)</td><td>0.9633</td><td>unitless</td><td>test</td><td>4356</td><td>Proportion of target variance explained by model versus horizontal mean</td></tr><tr><td>Median Absolute Error</td><td>0.3749</td><td>minutes</td><td>test</td><td>4356</td><td>50th percentile of absolute error; robust against extreme outliers</td></tr><tr><td>Mean Signed Error (Bias)</td><td>-0.0233</td><td>minutes</td><td>test</td><td>4356</td><td>Average signed deviation (predicted - actual); negative indicates slight underestimation</td></tr><tr><td>Median Signed Error</td><td>0.0453</td><td>minutes</td><td>test</td><td>4356</td><td>Median signed deviation (predicted - actual)</td></tr><tr><td>Error Standard Deviation</td><td>1.2203</td><td>minutes</td><td>test</td><td>4356</td><td>Spread of signed prediction errors around the mean bias</td></tr><tr><td>90th Percentile Absolute Error</td><td>1.8999</td><td>minutes</td><td>test</td><td>4356</td><td>90% of all airway segment traversals are predicted within this margin</td></tr><tr><td>95th Percentile Absolute Error</td><td>2.7724</td><td>minutes</td><td>test</td><td>4356</td><td>95% of test segment traversals are predicted within this margin</td></tr><tr><td>99th Percentile Absolute Error</td><td>4.7606</td><td>minutes</td><td>test</td><td>4356</td><td>Near-worst-case bound covering 99% of test segment traversals</td></tr><tr><td>Minimum Absolute Error</td><td>0.0004</td><td>minutes</td><td>test</td><td>4356</td><td>Closest single prediction to actual observed segment duration</td></tr><tr><td>Maximum Absolute Error</td><td>9.3407</td><td>minutes</td><td>test</td><td>4356</td><td>Worst single prediction error observed across all test segments</td></tr><tr><td>Baseline Heuristic MAE (780 km/h)</td><td>3.3948</td><td>minutes</td><td>test</td><td>4356</td><td>Standard nominal cruise-speed baseline error (distance / 780 km/h)</td></tr><tr><td>Baseline Heuristic RMSE (780 km/h)</td><td>4.5616</td><td>minutes</td><td>test</td><td>4356</td><td>Nominal cruise-speed baseline RMSE</td></tr><tr><td>Baseline Heuristic R² (780 km/h)</td><td>0.4866</td><td>unitless</td><td>test</td><td>4356</td><td>Variance explained by nominal cruise-speed baseline</td></tr></tbody></table></div>
+
+  <h3>Table B &mdash; Error Distribution & Percentile Analysis</h3>
+  <div class='table-container'><table id='tbl-eta-error-dist' class='eval-table'><caption>Signed Error and Absolute Error Distribution Statistics</caption><thead><tr><th>Error Type</th><th>Unit</th><th>Sample Count</th><th>Mean</th><th>Std</th><th>Median</th><th>Min</th><th>Max</th><th>P10</th><th>P25</th><th>P50</th><th>P75</th><th>P90</th><th>P95</th><th>P99</th><th>Missing Or Invalid Count</th></tr></thead><tbody><tr><td>signed_error_min</td><td>minutes</td><td>4356</td><td>-0.0233</td><td>1.2203</td><td>0.0453</td><td>-9.3407</td><td>6.0008</td><td>-1.1320</td><td>-0.3847</td><td>0.0453</td><td>0.3696</td><td>1.0763</td><td>1.8153</td><td>3.5988</td><td>0</td></tr><tr><td>abs_error_min</td><td>minutes</td><td>4356</td><td>0.7357</td><td>0.9739</td><td>0.3749</td><td>0.0004</td><td>9.3407</td><td>0.0628</td><td>0.1546</td><td>0.3749</td><td>0.8872</td><td>1.8999</td><td>2.7724</td><td>4.7606</td><td>0</td></tr></tbody></table></div>
+
+  <h3>Table C &mdash; Error by Traversal Target Range</h3>
+  <div class='table-container'><table id='tbl-eta-range' class='eval-table'><caption>Prediction Errors Stratified by Actual Flight Duration</caption><thead><tr><th>Target Range</th><th>Sample Count</th><th>Min Actual Min</th><th>Max Actual Min</th><th>Mean Actual Min</th><th>Mae Min</th><th>Rmse Min</th><th>Mean Signed Error Min</th><th>Median Abs Error Min</th><th>P90 Abs Error Min</th><th>R2</th></tr></thead><tbody><tr><td>< 15 min</td><td>337</td><td>7.0167</td><td>14.9501</td><td>11.9053</td><td>0.5380</td><td>0.8541</td><td>0.3141</td><td>0.3062</td><td>1.1881</td><td>0.8122</td></tr><tr><td>15-25 min</td><td>2252</td><td>15.0322</td><td>24.9976</td><td>20.5510</td><td>0.6408</td><td>1.0739</td><td>0.1997</td><td>0.3227</td><td>1.7167</td><td>0.8039</td></tr><tr><td>25-35 min</td><td>1606</td><td>25.0048</td><td>34.9881</td><td>29.0561</td><td>0.8344</td><td>1.2704</td><td>-0.2857</td><td>0.4804</td><td>2.0784</td><td>0.7175</td></tr><tr><td>>= 35 min</td><td>161</td><td>35.0237</td><td>50.2075</td><td>38.6484</td><td>1.4916</td><td>2.5575</td><td>-1.2301</td><td>0.6012</td><td>5.1641</td><td>0.3257</td></tr></tbody></table></div>
+
+  <h3>Table D &mdash; Candidate Model Comparison</h3>
+  <div class='table-container'><table id='tbl-eta-candidates' class='eval-table'><caption>Candidate Regression Architectures Comparison</caption><thead><tr><th>Model Name</th><th>Split</th><th>N Samples</th><th>Fit Seconds</th><th>Mae Min</th><th>Rmse Min</th><th>R2</th><th>Bias Min</th></tr></thead><tbody><tr><td>heuristic_distance_over_speed</td><td>validation</td><td>2105</td><td>not_fitted</td><td>3.3630</td><td>4.4088</td><td>0.5104</td><td>-2.1477</td></tr><tr><td>heuristic_distance_over_speed</td><td>test</td><td>4356</td><td>not_fitted</td><td>3.3948</td><td>4.5616</td><td>0.4866</td><td>-2.3492</td></tr><tr><td>median_baseline</td><td>validation</td><td>2105</td><td>0.0100</td><td>5.0627</td><td>6.3489</td><td>-0.0153</td><td>-0.7805</td></tr><tr><td>median_baseline</td><td>test</td><td>4356</td><td>0.0100</td><td>5.1208</td><td>6.4311</td><td>-0.0205</td><td>-0.9109</td></tr><tr><td>ridge</td><td>validation</td><td>2105</td><td>0.0100</td><td>1.7620</td><td>2.2959</td><td>0.8672</td><td>0.0159</td></tr><tr><td>ridge</td><td>test</td><td>4356</td><td>0.0100</td><td>1.7867</td><td>2.3319</td><td>0.8658</td><td>-0.0738</td></tr><tr><td>random_forest</td><td>validation</td><td>2105</td><td>0.8300</td><td>0.7412</td><td>1.3685</td><td>0.9528</td><td>0.0004</td></tr><tr><td>random_forest</td><td>test</td><td>4356</td><td>0.8300</td><td>0.7357</td><td>1.3574</td><td>0.9545</td><td>-0.0259</td></tr><tr><td>hist_gradient_boosting</td><td>validation</td><td>2105</td><td>0.7800</td><td>0.9205</td><td>1.5541</td><td>0.9392</td><td>-0.0093</td></tr><tr><td>hist_gradient_boosting</td><td>test</td><td>4356</td><td>0.7800</td><td>0.9954</td><td>1.6022</td><td>0.9367</td><td>-0.0449</td></tr></tbody></table></div>
+
+  <h3>Table E &mdash; Feature Importance Ranking</h3>
+  <div class='table-container'><table id='tbl-eta-features' class='eval-table'><caption>Top Features by Importance (Native MDI and Validation Permutation)</caption><thead><tr><th>Rank</th><th>Feature Name</th><th>Importance Value</th><th>Importance Method</th><th>Model Name</th><th>Model Version</th></tr></thead><tbody><tr><td>1</td><td>segment_distance_km</td><td>0.6720</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>2</td><td>entry_speed_mps</td><td>0.1500</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>3</td><td>bearing_sin</td><td>0.0576</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>4</td><td>entry_altitude_m</td><td>0.0431</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>5</td><td>tailwind_proxy_ms</td><td>0.0355</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>6</td><td>bearing_cos</td><td>0.0089</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>7</td><td>to_airport</td><td>0.0079</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>8</td><td>hour_cos</td><td>0.0066</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>9</td><td>hour_sin</td><td>0.0064</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>10</td><td>weather_severity</td><td>0.0052</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>11</td><td>corridor_count_prev_window</td><td>0.0046</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>12</td><td>from_airport</td><td>0.0024</td><td>native_mdi</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>1</td><td>segment_distance_km</td><td>5.4795</td><td>permutation_importance_validation</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>2</td><td>entry_speed_mps</td><td>1.1142</td><td>permutation_importance_validation</td><td>random_forest</td><td>v20261027T190839Z</td></tr><tr><td>3</td><td>bearing_sin</td><td>0.6247</td><td>permutation_importance_validation</td><td>random_forest</td><td>v20261027T190839Z</td></tr></tbody></table></div>
+</section>
+
+<section class="report-section">
+  <h2>3. Exported Chart-Ready Artifacts</h2>
+  <p class="section-desc">All numerical data tables are exported as tidy CSV and JSON files for external visualization pipelines:</p>
+  <ul class="artifact-list">
+    <li><code>congestion_metrics_summary.csv</code></li>
+    <li><code>congestion_classification_report.csv</code></li>
+    <li><code>congestion_confusion_matrix.csv</code></li>
+    <li><code>congestion_confusion_matrix_normalized.csv</code></li>
+    <li><code>congestion_feature_importance.csv</code></li>
+    <li><code>congestion_learning_curve_data.csv</code></li>
+    <li><code>congestion_model_comparison.csv</code></li>
+    <li><code>eta_metrics_summary.csv</code></li>
+    <li><code>eta_error_summary.csv</code></li>
+    <li><code>eta_actual_vs_predicted.csv</code></li>
+    <li><code>eta_error_by_range.csv</code></li>
+    <li><code>eta_feature_importance.csv</code></li>
+    <li><code>eta_learning_curve_data.csv</code></li>
+    <li><code>eta_model_comparison.csv</code></li>
+    <li><code>model_metrics_summary.csv</code></li>
+    <li><code>training_summary.json</code></li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>

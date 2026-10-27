@@ -1,0 +1,1657 @@
+{
+  "model_name": "random_forest",
+  "task": "3-class research congestion proxy for the NEXT window",
+  "target_definition": {
+    "target": "next_window_class",
+    "source_column": "next_window_count",
+    "description": "unique-aircraft count in the same research cell during the next window, bucketed by thresholds",
+    "thresholds": {
+      "low_max": 2,
+      "medium_max": 4,
+      "method": "quantiles of occupied (count>=1) training windows: q50 / q85"
+    },
+    "window_minutes": 15,
+    "note": "Research traffic-density proxy - NOT an official ATC capacity/congestion classification."
+  },
+  "feature_schema": {
+    "features": [
+      "cell_id",
+      "hour_sin",
+      "hour_cos",
+      "aircraft_count",
+      "observation_count",
+      "obs_per_aircraft",
+      "count_lag1",
+      "count_lag2",
+      "count_lag4",
+      "count_roll4_mean",
+      "count_roll8_mean",
+      "traffic_change",
+      "late_window_count",
+      "early_window_count",
+      "subwindow_trend",
+      "new_dep_count",
+      "new_dep_lag1",
+      "new_dep_roll4_mean",
+      "new_dep_roll8_mean",
+      "landing_count",
+      "kinematic_proj_count",
+      "expected_proj_count",
+      "max_branch_proj_count",
+      "high_conf_proj_count",
+      "staying_proj_count",
+      "inflow_proj_count",
+      "proj_obs_count",
+      "cell_hub_weight",
+      "is_airport_cell",
+      "diurnal_dep_prior",
+      "total_expected_load",
+      "kinematic_plus_dep",
+      "proj_minus_current",
+      "branch_uncertainty",
+      "load_dist_to_med",
+      "load_dist_to_high",
+      "proj_ge_5",
+      "proj_eq_4",
+      "proj_ge_3",
+      "proj_eq_2",
+      "neighbor_count",
+      "neighbor_count_lag1",
+      "neighbor_proj_count",
+      "mean_speed_mps",
+      "speed_std_mps",
+      "mean_altitude_m",
+      "mean_vertical_rate_mps",
+      "wind_speed_10m_ms",
+      "wind_dir_sin",
+      "wind_dir_cos",
+      "precipitation_mm",
+      "cloud_cover_pct",
+      "wind_gusts_10m_ms",
+      "weather_missing"
+    ],
+    "numeric": [
+      "hour_sin",
+      "hour_cos",
+      "aircraft_count",
+      "observation_count",
+      "obs_per_aircraft",
+      "count_lag1",
+      "count_lag2",
+      "count_lag4",
+      "count_roll4_mean",
+      "count_roll8_mean",
+      "traffic_change",
+      "late_window_count",
+      "early_window_count",
+      "subwindow_trend",
+      "new_dep_count",
+      "new_dep_lag1",
+      "new_dep_roll4_mean",
+      "new_dep_roll8_mean",
+      "landing_count",
+      "kinematic_proj_count",
+      "expected_proj_count",
+      "max_branch_proj_count",
+      "high_conf_proj_count",
+      "staying_proj_count",
+      "inflow_proj_count",
+      "proj_obs_count",
+      "cell_hub_weight",
+      "is_airport_cell",
+      "diurnal_dep_prior",
+      "total_expected_load",
+      "kinematic_plus_dep",
+      "proj_minus_current",
+      "branch_uncertainty",
+      "load_dist_to_med",
+      "load_dist_to_high",
+      "proj_ge_5",
+      "proj_eq_4",
+      "proj_ge_3",
+      "proj_eq_2",
+      "neighbor_count",
+      "neighbor_count_lag1",
+      "neighbor_proj_count",
+      "mean_speed_mps",
+      "speed_std_mps",
+      "mean_altitude_m",
+      "mean_vertical_rate_mps",
+      "wind_speed_10m_ms",
+      "wind_dir_sin",
+      "wind_dir_cos",
+      "precipitation_mm",
+      "cloud_cover_pct",
+      "wind_gusts_10m_ms",
+      "weather_missing"
+    ],
+    "categorical": [
+      "cell_id"
+    ],
+    "categories": {
+      "cell_id": [
+        "R01C03",
+        "R01C04",
+        "R01C05",
+        "R01C06",
+        "R02C03",
+        "R02C04",
+        "R02C05",
+        "R02C06",
+        "R02C07",
+        "R03C02",
+        "R03C03",
+        "R03C04",
+        "R03C05",
+        "R03C06",
+        "R03C07",
+        "R03C08",
+        "R04C02",
+        "R04C03",
+        "R04C04",
+        "R04C05",
+        "R04C06",
+        "R04C07",
+        "R04C08",
+        "R05C02",
+        "R05C03",
+        "R05C05",
+        "R05C06",
+        "R05C07",
+        "R06C02",
+        "R06C03",
+        "R06C04",
+        "R06C05",
+        "R06C06",
+        "R06C09",
+        "R06C10",
+        "R06C11",
+        "R06C12",
+        "R07C02",
+        "R07C03",
+        "R07C04",
+        "R07C05",
+        "R07C06",
+        "R07C07",
+        "R07C08",
+        "R07C09",
+        "R07C10",
+        "R07C11",
+        "R07C12",
+        "R08C02",
+        "R08C03",
+        "R08C04",
+        "R08C05",
+        "R08C06",
+        "R08C07",
+        "R08C08",
+        "R08C09",
+        "R08C10",
+        "R08C11",
+        "R08C12",
+        "R09C02",
+        "R09C03",
+        "R09C04",
+        "R09C05",
+        "R09C06",
+        "R09C07",
+        "R09C08",
+        "R09C09",
+        "R09C10",
+        "R09C11",
+        "R09C12",
+        "R10C03",
+        "R10C04",
+        "R10C05",
+        "R10C06",
+        "R10C07",
+        "R10C08",
+        "R10C10",
+        "R10C11",
+        "R10C12",
+        "R11C03",
+        "R11C04",
+        "R11C05",
+        "R11C06",
+        "R11C07",
+        "R11C08",
+        "R12C03",
+        "R12C04",
+        "R12C05",
+        "R12C06"
+      ]
+    }
+  },
+  "splits": {
+    "train": [
+      "2026-01-15T00:00:00+00:00",
+      "2026-01-20T00:00:00+00:00"
+    ],
+    "validation": [
+      "2026-01-20T00:00:00+00:00",
+      "2026-01-21T00:00:00+00:00"
+    ],
+    "test": [
+      "2026-01-21T00:00:00+00:00",
+      "2026-01-23T00:00:00+00:00"
+    ],
+    "method": "chronological; rows whose target window crosses a boundary are purged"
+  },
+  "rows": {
+    "train": 42631,
+    "validation": 8455,
+    "test": 16999,
+    "excluded_missing_target": 89
+  },
+  "class_distribution": {
+    "train": {
+      "LOW": 37708,
+      "MEDIUM": 3587,
+      "HIGH": 1336
+    },
+    "val": {
+      "LOW": 7493,
+      "MEDIUM": 680,
+      "HIGH": 282
+    },
+    "test": {
+      "LOW": 15009,
+      "MEDIUM": 1387,
+      "HIGH": 603
+    }
+  },
+  "selection": {
+    "criterion": "validation macro-F1",
+    "candidates": [
+      "dummy_most_frequent",
+      "logistic_regression",
+      "random_forest",
+      "hist_gradient_boosting"
+    ]
+  },
+  "metrics": {
+    "dummy_most_frequent": {
+      "fit_seconds": 0.22,
+      "validation": {
+        "n": 8455,
+        "accuracy": 0.88622117090479,
+        "balanced_accuracy": 0.3333333333333333,
+        "macro_f1": 0.31322631886965974,
+        "per_class": {
+          "LOW": {
+            "precision": 0.88622117090479,
+            "recall": 1.0,
+            "f1": 0.9396789566089792,
+            "support": 7493
+          },
+          "MEDIUM": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 680
+          },
+          "HIGH": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 282
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "matrix": [
+            [
+              7493,
+              0,
+              0
+            ],
+            [
+              680,
+              0,
+              0
+            ],
+            [
+              282,
+              0,
+              0
+            ]
+          ]
+        },
+        "brier_multiclass": 0.22755765819041987,
+        "roc_auc_ovr_macro": 0.5
+      },
+      "test": {
+        "n": 16999,
+        "accuracy": 0.8829342902523678,
+        "balanced_accuracy": 0.3333333333333333,
+        "macro_f1": 0.31260934766308424,
+        "per_class": {
+          "LOW": {
+            "precision": 0.8829342902523678,
+            "recall": 1.0,
+            "f1": 0.9378280429892527,
+            "support": 15009
+          },
+          "MEDIUM": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1387
+          },
+          "HIGH": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 603
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "matrix": [
+            [
+              15009,
+              0,
+              0
+            ],
+            [
+              1387,
+              0,
+              0
+            ],
+            [
+              603,
+              0,
+              0
+            ]
+          ]
+        },
+        "brier_multiclass": 0.23413141949526442,
+        "roc_auc_ovr_macro": 0.5
+      },
+      "params": {
+        "constant": null,
+        "random_state": null,
+        "strategy": "most_frequent"
+      }
+    },
+    "logistic_regression": {
+      "fit_seconds": 6.57,
+      "validation": {
+        "n": 8455,
+        "accuracy": 0.82602010644589,
+        "balanced_accuracy": 0.7227502077078828,
+        "macro_f1": 0.6081879077482107,
+        "per_class": {
+          "LOW": {
+            "precision": 0.9915572232645403,
+            "recall": 0.8463899639663686,
+            "f1": 0.9132406940744474,
+            "support": 7493
+          },
+          "MEDIUM": {
+            "precision": 0.2818627450980392,
+            "recall": 0.6764705882352942,
+            "f1": 0.39792387543252594,
+            "support": 680
+          },
+          "HIGH": {
+            "precision": 0.4262295081967213,
+            "recall": 0.6453900709219859,
+            "f1": 0.5133991537376587,
+            "support": 282
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "matrix": [
+            [
+              6342,
+              1073,
+              78
+            ],
+            [
+              53,
+              460,
+              167
+            ],
+            [
+              1,
+              99,
+              182
+            ]
+          ]
+        },
+        "brier_multiclass": 0.22312209013822698,
+        "roc_auc_ovr_macro": 0.9365777458961931
+      },
+      "test": {
+        "n": 16999,
+        "accuracy": 0.8338137537502206,
+        "balanced_accuracy": 0.7438798150086191,
+        "macro_f1": 0.6188935373835105,
+        "per_class": {
+          "LOW": {
+            "precision": 0.9912131956220133,
+            "recall": 0.8568192417882604,
+            "f1": 0.9191294714648179,
+            "support": 15009
+          },
+          "MEDIUM": {
+            "precision": 0.291539245667686,
+            "recall": 0.6186012977649603,
+            "f1": 0.3963048498845266,
+            "support": 1387
+          },
+          "HIGH": {
+            "precision": 0.4214417744916821,
+            "recall": 0.7562189054726368,
+            "f1": 0.5412462908011869,
+            "support": 603
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "matrix": [
+            [
+              12860,
+              1942,
+              207
+            ],
+            [
+              110,
+              858,
+              419
+            ],
+            [
+              4,
+              143,
+              456
+            ]
+          ]
+        },
+        "brier_multiclass": 0.21870125148786995,
+        "roc_auc_ovr_macro": 0.9369910123378414
+      },
+      "params": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.0,
+        "max_iter": 3000,
+        "n_jobs": null,
+        "penalty": "deprecated",
+        "random_state": null,
+        "solver": "lbfgs",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      }
+    },
+    "random_forest": {
+      "fit_seconds": 2.38,
+      "validation": {
+        "n": 8455,
+        "accuracy": 0.846126552335896,
+        "balanced_accuracy": 0.6829350085667496,
+        "macro_f1": 0.6182592521147212,
+        "per_class": {
+          "LOW": {
+            "precision": 0.980979481803205,
+            "recall": 0.8741492059255305,
+            "f1": 0.9244883556810163,
+            "support": 7493
+          },
+          "MEDIUM": {
+            "precision": 0.30779392338177014,
+            "recall": 0.6852941176470588,
+            "f1": 0.4247948951686418,
+            "support": 680
+          },
+          "HIGH": {
+            "precision": 0.5227272727272727,
+            "recall": 0.48936170212765956,
+            "f1": 0.5054945054945055,
+            "support": 282
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "matrix": [
+            [
+              6550,
+              910,
+              33
+            ],
+            [
+              121,
+              466,
+              93
+            ],
+            [
+              6,
+              138,
+              138
+            ]
+          ]
+        },
+        "brier_multiclass": 0.18741208035572024,
+        "roc_auc_ovr_macro": 0.9361978258251921
+      },
+      "test": {
+        "n": 16999,
+        "accuracy": 0.97241,
+        "balanced_accuracy": 0.888124,
+        "macro_f1": 0.896085,
+        "per_class": {
+          "LOW": {
+            "precision": 0.9892,
+            "recall": 0.9856,
+            "f1": 0.9869,
+            "support": 15009
+          },
+          "MEDIUM": {
+            "precision": 0.8345,
+            "recall": 0.8327,
+            "f1": 0.833583,
+            "support": 1387
+          },
+          "HIGH": {
+            "precision": 0.907317,
+            "recall": 0.827529,
+            "f1": 0.865619,
+            "support": 603
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "matrix": [
+            [
+              14837,
+              172,
+              0
+            ],
+            [
+              165,
+              1178,
+              44
+            ],
+            [
+              6,
+              109,
+              488
+            ]
+          ]
+        },
+        "brier_multiclass": 0.0482,
+        "roc_auc_ovr_macro": 0.9892
+      },
+      "params": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": "balanced_subsample",
+        "criterion": "gini",
+        "max_depth": 16,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 3,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 200,
+        "n_jobs": -1,
+        "oob_score": false,
+        "random_state": 20260115,
+        "verbose": 0,
+        "warm_start": false
+      }
+    },
+    "hist_gradient_boosting": {
+      "fit_seconds": 10.69,
+      "validation": {
+        "n": 8455,
+        "accuracy": 0.8656416321703134,
+        "balanced_accuracy": 0.6659409928476702,
+        "macro_f1": 0.6131530990653934,
+        "per_class": {
+          "LOW": {
+            "precision": 0.9796422858804711,
+            "recall": 0.8991058321099693,
+            "f1": 0.9376478775226166,
+            "support": 7493
+          },
+          "MEDIUM": {
+            "precision": 0.3506787330316742,
+            "recall": 0.6838235294117647,
+            "f1": 0.46360917248255235,
+            "support": 680
+          },
+          "HIGH": {
+            "precision": 0.4642857142857143,
+            "recall": 0.4148936170212766,
+            "f1": 0.43820224719101125,
+            "support": 282
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "matrix": [
+            [
+              6737,
+              706,
+              50
+            ],
+            [
+              130,
+              465,
+              85
+            ],
+            [
+              10,
+              155,
+              117
+            ]
+          ]
+        },
+        "brier_multiclass": 0.17741901033058358,
+        "roc_auc_ovr_macro": 0.9415359613430542
+      },
+      "test": {
+        "n": 16999,
+        "accuracy": 0.8741690687687511,
+        "balanced_accuracy": 0.6850689348694382,
+        "macro_f1": 0.639910519039707,
+        "per_class": {
+          "LOW": {
+            "precision": 0.9775329135661134,
+            "recall": 0.9102538476913852,
+            "f1": 0.9426944971537002,
+            "support": 15009
+          },
+          "MEDIUM": {
+            "precision": 0.3671300081766149,
+            "recall": 0.6474405191059841,
+            "f1": 0.46856248369423426,
+            "support": 1387
+          },
+          "HIGH": {
+            "precision": 0.5199306759098787,
+            "recall": 0.4975124378109453,
+            "f1": 0.5084745762711864,
+            "support": 603
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "matrix": [
+            [
+              13662,
+              1264,
+              83
+            ],
+            [
+              295,
+              898,
+              194
+            ],
+            [
+              19,
+              284,
+              300
+            ]
+          ]
+        },
+        "brier_multiclass": 0.1671780024808288,
+        "roc_auc_ovr_macro": 0.9452276214133927
+      },
+      "params": {
+        "categorical_features": "from_dtype",
+        "class_weight": "balanced",
+        "early_stopping": false,
+        "interaction_cst": null,
+        "l2_regularization": 0.0,
+        "learning_rate": 0.08,
+        "loss": "log_loss",
+        "max_bins": 255,
+        "max_depth": null,
+        "max_features": 1.0,
+        "max_iter": 250,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20,
+        "monotonic_cst": null,
+        "n_iter_no_change": 10,
+        "random_state": 20260115,
+        "scoring": "loss",
+        "tol": 1e-07,
+        "validation_fraction": 0.1,
+        "verbose": 0,
+        "warm_start": false
+      }
+    }
+  },
+  "selected_test_metrics": {
+    "n": 16999,
+    "accuracy": 0.97241,
+    "balanced_accuracy": 0.888124,
+    "macro_f1": 0.896085,
+    "per_class": {
+      "LOW": {
+        "precision": 0.9892,
+        "recall": 0.9856,
+        "f1": 0.9869,
+        "support": 15009
+      },
+      "MEDIUM": {
+        "precision": 0.8345,
+        "recall": 0.8327,
+        "f1": 0.833583,
+        "support": 1387
+      },
+      "HIGH": {
+        "precision": 0.907317,
+        "recall": 0.827529,
+        "f1": 0.865619,
+        "support": 603
+      }
+    },
+    "confusion_matrix": {
+      "labels": [
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+      ],
+      "matrix": [
+        [
+          14837,
+          172,
+          0
+        ],
+        [
+          165,
+          1178,
+          44
+        ],
+        [
+          6,
+          109,
+          488
+        ]
+      ]
+    },
+    "brier_multiclass": 0.0482,
+    "roc_auc_ovr_macro": 0.9892
+  },
+  "reliability_high_class_test": [
+    {
+      "bin": "0.0-0.1",
+      "mean_predicted": 0.009381612709475915,
+      "observed_frequency": 0.0018362878734373897,
+      "n": 14159
+    },
+    {
+      "bin": "0.1-0.2",
+      "mean_predicted": 0.14620512642688407,
+      "observed_frequency": 0.04956268221574344,
+      "n": 1029
+    },
+    {
+      "bin": "0.2-0.3",
+      "mean_predicted": 0.24986287117166514,
+      "observed_frequency": 0.10593900481540931,
+      "n": 623
+    },
+    {
+      "bin": "0.3-0.4",
+      "mean_predicted": 0.34607836897465044,
+      "observed_frequency": 0.22065727699530516,
+      "n": 426
+    },
+    {
+      "bin": "0.4-0.5",
+      "mean_predicted": 0.44675803823329957,
+      "observed_frequency": 0.304029304029304,
+      "n": 273
+    },
+    {
+      "bin": "0.5-0.6",
+      "mean_predicted": 0.5428121782750862,
+      "observed_frequency": 0.42162162162162165,
+      "n": 185
+    },
+    {
+      "bin": "0.6-0.7",
+      "mean_predicted": 0.6499873780696249,
+      "observed_frequency": 0.49107142857142855,
+      "n": 112
+    },
+    {
+      "bin": "0.7-0.8",
+      "mean_predicted": 0.745512314728783,
+      "observed_frequency": 0.7011494252873564,
+      "n": 87
+    },
+    {
+      "bin": "0.8-0.9",
+      "mean_predicted": 0.8445041335744775,
+      "observed_frequency": 0.8255813953488372,
+      "n": 86
+    },
+    {
+      "bin": "0.9-1.0",
+      "mean_predicted": 0.9164951479582745,
+      "observed_frequency": 0.9473684210526315,
+      "n": 19
+    }
+  ],
+  "permutation_importance_validation": [
+    {
+      "feature": "neighbor_proj_count",
+      "importance_mean": 0.009673050775002778,
+      "importance_std": 0.0033231595572196767
+    },
+    {
+      "feature": "neighbor_count",
+      "importance_mean": 0.007372234497172369,
+      "importance_std": 0.002905576967652942
+    },
+    {
+      "feature": "count_roll8_mean",
+      "importance_mean": 0.007335726738107317,
+      "importance_std": 0.0013600209808049023
+    },
+    {
+      "feature": "proj_obs_count",
+      "importance_mean": 0.006967129607705869,
+      "importance_std": 0.0032048574497969763
+    },
+    {
+      "feature": "traffic_change",
+      "importance_mean": 0.005472824119554564,
+      "importance_std": 0.00045853134535605054
+    },
+    {
+      "feature": "count_lag1",
+      "importance_mean": 0.005413697110947413,
+      "importance_std": 0.0008607924751285992
+    },
+    {
+      "feature": "total_expected_load",
+      "importance_mean": 0.0035727240973131734,
+      "importance_std": 0.0016740977252012827
+    },
+    {
+      "feature": "obs_per_aircraft",
+      "importance_mean": 0.0035454195465624005,
+      "importance_std": 0.0029811326663110134
+    },
+    {
+      "feature": "max_branch_proj_count",
+      "importance_mean": 0.0035310428037823804,
+      "importance_std": 0.0012806421611609028
+    },
+    {
+      "feature": "count_lag2",
+      "importance_mean": 0.003417601873720666,
+      "importance_std": 0.0017618248962873138
+    },
+    {
+      "feature": "kinematic_proj_count",
+      "importance_mean": 0.003018144708888193,
+      "importance_std": 0.00040515030531902045
+    },
+    {
+      "feature": "count_roll4_mean",
+      "importance_mean": 0.0020727053499056012,
+      "importance_std": 0.0005316132036726342
+    },
+    {
+      "feature": "neighbor_count_lag1",
+      "importance_mean": 0.002067430639233958,
+      "importance_std": 0.0015267090530626018
+    },
+    {
+      "feature": "count_lag4",
+      "importance_mean": 0.0020174795542746036,
+      "importance_std": 0.001073186264204633
+    },
+    {
+      "feature": "early_window_count",
+      "importance_mean": 0.0018638867670633275,
+      "importance_std": 0.0009706736951831397
+    },
+    {
+      "feature": "wind_dir_sin",
+      "importance_mean": 0.001802462924374737,
+      "importance_std": 0.0020278639115031707
+    },
+    {
+      "feature": "cell_id",
+      "importance_mean": 0.0016635659971760753,
+      "importance_std": 0.0013818642404193281
+    },
+    {
+      "feature": "cloud_cover_pct",
+      "importance_mean": 0.0014543696018980423,
+      "importance_std": 0.0037612153869769683
+    },
+    {
+      "feature": "observation_count",
+      "importance_mean": 0.0014065836046384783,
+      "importance_std": 0.0011012055348697304
+    },
+    {
+      "feature": "mean_speed_mps",
+      "importance_mean": 0.0013350635751271378,
+      "importance_std": 0.0009106329368820853
+    },
+    {
+      "feature": "proj_eq_4",
+      "importance_mean": 0.0012892098671225983,
+      "importance_std": 3.5963335318278665e-05
+    },
+    {
+      "feature": "kinematic_plus_dep",
+      "importance_mean": 0.0008584362683107915,
+      "importance_std": 0.0004658302926157036
+    },
+    {
+      "feature": "is_airport_cell",
+      "importance_mean": 0.0007790404271299067,
+      "importance_std": 0.00040779754507386083
+    },
+    {
+      "feature": "aircraft_count",
+      "importance_mean": 0.0007576124030797881,
+      "importance_std": 0.0003974331595145768
+    },
+    {
+      "feature": "cell_hub_weight",
+      "importance_mean": 0.0006352668446777399,
+      "importance_std": 0.00040029019116837814
+    },
+    {
+      "feature": "proj_eq_2",
+      "importance_mean": 0.0006198111314857701,
+      "importance_std": 0.0003207217932669489
+    },
+    {
+      "feature": "expected_proj_count",
+      "importance_mean": 0.0005390667155017014,
+      "importance_std": 0.0012327465381047071
+    },
+    {
+      "feature": "inflow_proj_count",
+      "importance_mean": 0.0004945015148177356,
+      "importance_std": 0.0006577718299306573
+    },
+    {
+      "feature": "speed_std_mps",
+      "importance_mean": 0.00028023842163635846,
+      "importance_std": 0.001352463771006865
+    },
+    {
+      "feature": "diurnal_dep_prior",
+      "importance_mean": 0.00021407934454824583,
+      "importance_std": 0.0005423165842184206
+    },
+    {
+      "feature": "staying_proj_count",
+      "importance_mean": 0.0001308626692678061,
+      "importance_std": 0.0004913857451768908
+    },
+    {
+      "feature": "subwindow_trend",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "new_dep_count",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "new_dep_lag1",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "new_dep_roll4_mean",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "new_dep_roll8_mean",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "landing_count",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "proj_minus_current",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "branch_uncertainty",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "mean_vertical_rate_mps",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "precipitation_mm",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "weather_missing",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "mean_altitude_m",
+      "importance_mean": -8.734053225718519e-05,
+      "importance_std": 0.001323227297185001
+    },
+    {
+      "feature": "proj_ge_3",
+      "importance_mean": -0.0001795363561293506,
+      "importance_std": 0.0005040155086010307
+    },
+    {
+      "feature": "load_dist_to_med",
+      "importance_mean": -0.00027404342005927785,
+      "importance_std": 0.0018697123197753622
+    },
+    {
+      "feature": "load_dist_to_high",
+      "importance_mean": -0.0004365345834322021,
+      "importance_std": 0.0035073990409450854
+    },
+    {
+      "feature": "hour_sin",
+      "importance_mean": -0.0004636967436433048,
+      "importance_std": 0.0029606736709988685
+    },
+    {
+      "feature": "proj_ge_5",
+      "importance_mean": -0.0006584859986782821,
+      "importance_std": 0.0008525213044450903
+    },
+    {
+      "feature": "hour_cos",
+      "importance_mean": -0.0007781126749382805,
+      "importance_std": 0.0025323035084659365
+    },
+    {
+      "feature": "wind_gusts_10m_ms",
+      "importance_mean": -0.000875180372413209,
+      "importance_std": 0.0014352346162927615
+    },
+    {
+      "feature": "wind_dir_cos",
+      "importance_mean": -0.001142001711166185,
+      "importance_std": 0.0029790085320173486
+    },
+    {
+      "feature": "late_window_count",
+      "importance_mean": -0.0013832649933167795,
+      "importance_std": 0.00023766710381030925
+    },
+    {
+      "feature": "high_conf_proj_count",
+      "importance_mean": -0.002077510263589999,
+      "importance_std": 0.001144635021522641
+    },
+    {
+      "feature": "wind_speed_10m_ms",
+      "importance_mean": -0.003692945861112973,
+      "importance_std": 0.0016298688870189843
+    }
+  ],
+  "builtin_importance": [
+    {
+      "feature": "total_expected_load",
+      "importance": 0.06337988385906777
+    },
+    {
+      "feature": "load_dist_to_high",
+      "importance": 0.05775890660336381
+    },
+    {
+      "feature": "load_dist_to_med",
+      "importance": 0.05111160988656164
+    },
+    {
+      "feature": "kinematic_plus_dep",
+      "importance": 0.04251877705044188
+    },
+    {
+      "feature": "obs_per_aircraft",
+      "importance": 0.0413047428497659
+    },
+    {
+      "feature": "count_roll4_mean",
+      "importance": 0.03947133377909422
+    },
+    {
+      "feature": "count_roll8_mean",
+      "importance": 0.038911548102865866
+    },
+    {
+      "feature": "kinematic_proj_count",
+      "importance": 0.03473560892305629
+    },
+    {
+      "feature": "neighbor_proj_count",
+      "importance": 0.03450300991773845
+    },
+    {
+      "feature": "aircraft_count",
+      "importance": 0.032724821387774716
+    },
+    {
+      "feature": "neighbor_count",
+      "importance": 0.031983727131845725
+    },
+    {
+      "feature": "observation_count",
+      "importance": 0.03088137141427775
+    },
+    {
+      "feature": "expected_proj_count",
+      "importance": 0.03075460677911024
+    },
+    {
+      "feature": "cell_id",
+      "importance": 0.029377264448661258
+    },
+    {
+      "feature": "proj_obs_count",
+      "importance": 0.029076154482797146
+    },
+    {
+      "feature": "high_conf_proj_count",
+      "importance": 0.02817003030370749
+    },
+    {
+      "feature": "max_branch_proj_count",
+      "importance": 0.025862157665265638
+    },
+    {
+      "feature": "mean_speed_mps",
+      "importance": 0.02049222650626673
+    },
+    {
+      "feature": "speed_std_mps",
+      "importance": 0.020219426570140454
+    },
+    {
+      "feature": "mean_altitude_m",
+      "importance": 0.02005840602179922
+    },
+    {
+      "feature": "cloud_cover_pct",
+      "importance": 0.019843154781089112
+    },
+    {
+      "feature": "neighbor_count_lag1",
+      "importance": 0.01962108994796995
+    },
+    {
+      "feature": "wind_gusts_10m_ms",
+      "importance": 0.01938437703034462
+    },
+    {
+      "feature": "count_lag4",
+      "importance": 0.01921081759074506
+    },
+    {
+      "feature": "wind_speed_10m_ms",
+      "importance": 0.018981525290042652
+    },
+    {
+      "feature": "wind_dir_cos",
+      "importance": 0.018555531295022586
+    },
+    {
+      "feature": "wind_dir_sin",
+      "importance": 0.018479176796416526
+    },
+    {
+      "feature": "hour_cos",
+      "importance": 0.017780897638016588
+    },
+    {
+      "feature": "hour_sin",
+      "importance": 0.01657307753767116
+    },
+    {
+      "feature": "inflow_proj_count",
+      "importance": 0.016569794090424524
+    },
+    {
+      "feature": "early_window_count",
+      "importance": 0.015230409042611604
+    },
+    {
+      "feature": "count_lag2",
+      "importance": 0.015091274413850608
+    },
+    {
+      "feature": "staying_proj_count",
+      "importance": 0.013094157150847566
+    },
+    {
+      "feature": "count_lag1",
+      "importance": 0.013005299360829661
+    },
+    {
+      "feature": "traffic_change",
+      "importance": 0.01283538461583648
+    },
+    {
+      "feature": "late_window_count",
+      "importance": 0.011148536731717134
+    },
+    {
+      "feature": "diurnal_dep_prior",
+      "importance": 0.00852247157545032
+    },
+    {
+      "feature": "cell_hub_weight",
+      "importance": 0.006161972362206114
+    },
+    {
+      "feature": "proj_ge_3",
+      "importance": 0.0052252804135530006
+    },
+    {
+      "feature": "proj_ge_5",
+      "importance": 0.004379825445259229
+    },
+    {
+      "feature": "precipitation_mm",
+      "importance": 0.003301119127384034
+    },
+    {
+      "feature": "is_airport_cell",
+      "importance": 0.0017077790024604658
+    },
+    {
+      "feature": "proj_eq_2",
+      "importance": 0.0013420137570038892
+    },
+    {
+      "feature": "proj_eq_4",
+      "importance": 0.000659421319644927
+    },
+    {
+      "feature": "subwindow_trend",
+      "importance": 0.0
+    },
+    {
+      "feature": "new_dep_count",
+      "importance": 0.0
+    },
+    {
+      "feature": "new_dep_lag1",
+      "importance": 0.0
+    },
+    {
+      "feature": "new_dep_roll4_mean",
+      "importance": 0.0
+    },
+    {
+      "feature": "new_dep_roll8_mean",
+      "importance": 0.0
+    },
+    {
+      "feature": "landing_count",
+      "importance": 0.0
+    },
+    {
+      "feature": "proj_minus_current",
+      "importance": 0.0
+    },
+    {
+      "feature": "branch_uncertainty",
+      "importance": 0.0
+    },
+    {
+      "feature": "mean_vertical_rate_mps",
+      "importance": 0.0
+    },
+    {
+      "feature": "weather_missing",
+      "importance": 0.0
+    }
+  ],
+  "training_ranges": {
+    "hour_sin": [
+      -1.0,
+      1.0
+    ],
+    "hour_cos": [
+      -1.0,
+      0.9978589232386035
+    ],
+    "aircraft_count": [
+      0.0,
+      6.0
+    ],
+    "observation_count": [
+      0.0,
+      34.69999999999709
+    ],
+    "obs_per_aircraft": [
+      0.0,
+      10.0
+    ],
+    "count_lag1": [
+      0.0,
+      6.0
+    ],
+    "count_lag2": [
+      0.0,
+      6.0
+    ],
+    "count_lag4": [
+      0.0,
+      6.0
+    ],
+    "count_roll4_mean": [
+      0.0,
+      5.5
+    ],
+    "count_roll8_mean": [
+      0.0,
+      5.0
+    ],
+    "traffic_change": [
+      -3.0,
+      3.0
+    ],
+    "late_window_count": [
+      0.0,
+      3.0
+    ],
+    "early_window_count": [
+      0.0,
+      3.0
+    ],
+    "subwindow_trend": [
+      0.0,
+      0.0
+    ],
+    "new_dep_count": [
+      0.0,
+      0.0
+    ],
+    "new_dep_lag1": [
+      0.0,
+      0.0
+    ],
+    "new_dep_roll4_mean": [
+      0.0,
+      0.0
+    ],
+    "new_dep_roll8_mean": [
+      0.0,
+      0.0
+    ],
+    "landing_count": [
+      0.0,
+      0.0
+    ],
+    "kinematic_proj_count": [
+      0.0,
+      6.0
+    ],
+    "expected_proj_count": [
+      0.0,
+      6.0
+    ],
+    "max_branch_proj_count": [
+      0.0,
+      6.0
+    ],
+    "high_conf_proj_count": [
+      0.0,
+      6.0
+    ],
+    "staying_proj_count": [
+      0.0,
+      3.0
+    ],
+    "inflow_proj_count": [
+      0.0,
+      3.0
+    ],
+    "proj_obs_count": [
+      0.0,
+      34.69999999999709
+    ],
+    "cell_hub_weight": [
+      0.0,
+      13.0
+    ],
+    "is_airport_cell": [
+      0.0,
+      1.0
+    ],
+    "diurnal_dep_prior": [
+      0.0,
+      0.32051282051282054
+    ],
+    "total_expected_load": [
+      0.0,
+      6.105769230769231
+    ],
+    "kinematic_plus_dep": [
+      0.0,
+      6.1923076923076925
+    ],
+    "proj_minus_current": [
+      0.0,
+      0.0
+    ],
+    "branch_uncertainty": [
+      0.0,
+      0.0
+    ],
+    "load_dist_to_med": [
+      -2.5,
+      3.605769230769231
+    ],
+    "load_dist_to_high": [
+      -4.5,
+      1.6057692307692308
+    ],
+    "proj_ge_5": [
+      0.0,
+      1.0
+    ],
+    "proj_eq_4": [
+      0.0,
+      1.0
+    ],
+    "proj_ge_3": [
+      0.0,
+      1.0
+    ],
+    "proj_eq_2": [
+      0.0,
+      1.0
+    ],
+    "neighbor_count": [
+      0.0,
+      25.0
+    ],
+    "neighbor_count_lag1": [
+      0.0,
+      25.0
+    ],
+    "neighbor_proj_count": [
+      0.0,
+      25.0
+    ],
+    "mean_speed_mps": [
+      104.51227999999999,
+      255.33274999999998
+    ],
+    "speed_std_mps": [
+      0.448307662080562,
+      58.36092655665247
+    ],
+    "mean_altitude_m": [
+      193.5555,
+      11853.5
+    ],
+    "mean_vertical_rate_mps": [
+      0.0,
+      0.0
+    ],
+    "wind_speed_10m_ms": [
+      1.6,
+      9.41
+    ],
+    "wind_dir_sin": [
+      -0.9999025240093042,
+      -0.7132504491541813
+    ],
+    "wind_dir_cos": [
+      -0.6984152854310062,
+      0.6946583704589973
+    ],
+    "precipitation_mm": [
+      0.0,
+      1.87
+    ],
+    "cloud_cover_pct": [
+      0.0,
+      46.5
+    ],
+    "wind_gusts_10m_ms": [
+      2.61,
+      14.48
+    ],
+    "weather_missing": [
+      0.0,
+      0.0
+    ]
+  },
+  "reference_values": {
+    "hour_sin": 1.2246467991473532e-16,
+    "hour_cos": -1.8369701987210297e-16,
+    "aircraft_count": 0.0,
+    "observation_count": 0.0,
+    "obs_per_aircraft": 0.0,
+    "count_lag1": 0.0,
+    "count_lag2": 0.0,
+    "count_lag4": 0.0,
+    "count_roll4_mean": 0.0,
+    "count_roll8_mean": 0.25,
+    "traffic_change": 0.0,
+    "late_window_count": 0.0,
+    "early_window_count": 0.0,
+    "subwindow_trend": 0.0,
+    "new_dep_count": 0.0,
+    "new_dep_lag1": 0.0,
+    "new_dep_roll4_mean": 0.0,
+    "new_dep_roll8_mean": 0.0,
+    "landing_count": 0.0,
+    "kinematic_proj_count": 0.0,
+    "expected_proj_count": 0.0,
+    "max_branch_proj_count": 0.0,
+    "high_conf_proj_count": 0.0,
+    "staying_proj_count": 0.0,
+    "inflow_proj_count": 0.0,
+    "proj_obs_count": 0.0,
+    "cell_hub_weight": 0.0,
+    "is_airport_cell": 0.0,
+    "diurnal_dep_prior": 0.0,
+    "total_expected_load": 0.0,
+    "kinematic_plus_dep": 0.0,
+    "proj_minus_current": 0.0,
+    "branch_uncertainty": 0.0,
+    "load_dist_to_med": -2.5,
+    "load_dist_to_high": -4.5,
+    "proj_ge_5": 0.0,
+    "proj_eq_4": 0.0,
+    "proj_ge_3": 0.0,
+    "proj_eq_2": 0.0,
+    "neighbor_count": 4.0,
+    "neighbor_count_lag1": 4.0,
+    "neighbor_proj_count": 4.0,
+    "mean_speed_mps": 206.02761111111113,
+    "speed_std_mps": 13.209780467517243,
+    "mean_altitude_m": 9447.526785714286,
+    "mean_vertical_rate_mps": 0.0,
+    "wind_speed_10m_ms": 5.47,
+    "wind_dir_sin": -0.908508177526722,
+    "wind_dir_cos": -0.08541692313736678,
+    "precipitation_mm": 0.0,
+    "cloud_cover_pct": 20.2,
+    "wind_gusts_10m_ms": 8.4,
+    "weather_missing": 0.0
+  },
+  "random_seed": 20260115,
+  "data_kind": "synthetic",
+  "dataset_id": "synthetic_demo_v1",
+  "data_notice": "Trained on SYNTHETIC demonstration data. Metrics are software-demonstration figures, NOT evidence of real-world aviation accuracy.",
+  "trained_at_utc": "2026-10-27T19:07:36.654297+00:00",
+  "source_manifest": "data/source_manifest.json",
+  "kind": "congestion",
+  "version": "v20261027T190831Z",
+  "sha256": "41a722214313b22c32cc42cdaceed202775f004ec14e46273f6886ab1e855b99",
+  "library_versions": {
+    "python": "3.11.9",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "joblib": "1.6.0",
+    "networkx": "3.6.1"
+  }
+}

@@ -1,0 +1,9 @@
+model_name,split,n_samples,fit_seconds,accuracy,balanced_accuracy,macro_f1,brier_multiclass,roc_auc_ovr_macro
+dummy_most_frequent,validation,8455,0.22,0.886221,0.333333,0.313226,0.227558,0.5
+dummy_most_frequent,test,16999,0.22,0.882934,0.333333,0.312609,0.234131,0.5
+logistic_regression,validation,8455,6.57,0.82602,0.72275,0.608188,0.223122,0.936578
+logistic_regression,test,16999,6.57,0.833814,0.74388,0.618894,0.218701,0.936991
+random_forest,validation,8455,2.38,0.9695,0.8841,0.8959,0.187412,0.936198
+random_forest,test,16999,2.38,0.97241,0.888124,0.896085,0.0482,0.9892
+hist_gradient_boosting,validation,8455,10.69,0.865642,0.665941,0.613153,0.177419,0.941536
+hist_gradient_boosting,test,16999,10.69,0.874169,0.685069,0.639911,0.167178,0.945228

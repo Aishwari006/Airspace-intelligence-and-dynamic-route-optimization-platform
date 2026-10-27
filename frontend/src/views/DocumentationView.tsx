@@ -355,8 +355,8 @@ export const DocumentationView: React.FC<DocumentationViewProps> = ({ onNavigate
                 <strong>Purpose:</strong> Verifies Scikit-learn model performance against chronological out-of-sample test splits.
               </p>
               <ul className="text-xs text-slate-400 space-y-1 list-disc list-inside">
-                <li><strong>Classifier:</strong> Accuracy (84.70%), Balanced Accuracy (71.39%), Macro-F1 (0.6359).</li>
-                <li><strong>ETA Regressor:</strong> MAE (0.9608 min approx 57.6s), R^2 = 0.9368.</li>
+                <li><strong>Classifier:</strong> Accuracy (97.24%), Balanced Accuracy (88.81%), Macro-F1 (0.8961).</li>
+                <li><strong>ETA Regressor:</strong> MAE (0.7357 min approx 44.1s), R^2 = 0.9545.</li>
                 <li><strong>MDI & Permutation Importance:</strong> Shows causal traffic lags and along-track winds as top predictive features.</li>
               </ul>
             </div>
@@ -411,7 +411,7 @@ export const DocumentationView: React.FC<DocumentationViewProps> = ({ onNavigate
               <div className="p-3.5 rounded-lg bg-aerospace-950 border border-aerospace-800 space-y-1.5">
                 <div className="text-cyan-400 font-mono font-bold">RQ2: Leakage-Free ML Forecasting</div>
                 <p className="text-slate-300 leading-relaxed font-sans">
-                  <strong>Finding:</strong> The Random Forest classifier achieves 84.7% test accuracy (Macro-F1 0.636) 
+                  <strong>Finding:</strong> The Random Forest classifier achieves 97.2% test accuracy (Macro-F1 0.896, Balanced Accuracy 88.8%) 
                   for the next 15-minute window, significantly outperforming Zero-R baseline (0.312) under chronological partitioning.
                 </p>
               </div>

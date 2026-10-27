@@ -1,0 +1,1071 @@
+{
+  "model_name": "random_forest",
+  "task": "segment traversal time regression (minutes)",
+  "target_definition": {
+    "target": "observed_segment_time_min",
+    "description": "time between consecutive observed node passages (25 km radius, along-track refined) on a graph edge",
+    "exclusions": {
+      "implausible_implied_speed": 0
+    }
+  },
+  "feature_schema": {
+    "features": [
+      "segment_distance_km",
+      "bearing_sin",
+      "bearing_cos",
+      "hour_sin",
+      "hour_cos",
+      "from_airport",
+      "to_airport",
+      "entry_speed_mps",
+      "entry_altitude_m",
+      "tailwind_proxy_ms",
+      "weather_severity",
+      "corridor_count_prev_window"
+    ],
+    "numeric": [
+      "segment_distance_km",
+      "bearing_sin",
+      "bearing_cos",
+      "hour_sin",
+      "hour_cos",
+      "from_airport",
+      "to_airport",
+      "entry_speed_mps",
+      "entry_altitude_m",
+      "tailwind_proxy_ms",
+      "weather_severity",
+      "corridor_count_prev_window"
+    ],
+    "categorical": []
+  },
+  "splits": {
+    "train": [
+      "2026-01-15T00:00:00+00:00",
+      "2026-01-20T00:00:00+00:00"
+    ],
+    "validation": [
+      "2026-01-20T00:00:00+00:00",
+      "2026-01-21T00:00:00+00:00"
+    ],
+    "test": [
+      "2026-01-21T00:00:00+00:00",
+      "2026-01-23T00:00:00+00:00"
+    ],
+    "method": "chronological; rows whose target window crosses a boundary are purged"
+  },
+  "rows": {
+    "train": 10746,
+    "validation": 2105,
+    "test": 4356
+  },
+  "selection": {
+    "criterion": "validation MAE",
+    "candidates": [
+      "heuristic_distance_over_speed",
+      "median_baseline",
+      "ridge",
+      "random_forest",
+      "hist_gradient_boosting"
+    ]
+  },
+  "metrics": {
+    "heuristic_distance_over_speed": {
+      "assumption": "distance / 780 km/h (not fitted)",
+      "validation": {
+        "n": 2105,
+        "mae_min": 3.3629557380133708,
+        "rmse_min": 4.408829089387981,
+        "r2": 0.5103774455455448,
+        "bias_min": -2.1477161584821425,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 203
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 239
+          },
+          {
+            "bin_min": "1-2",
+            "count": 425
+          },
+          {
+            "bin_min": "2-3",
+            "count": 346
+          },
+          {
+            "bin_min": "3-5",
+            "count": 381
+          },
+          {
+            "bin_min": "5-8",
+            "count": 315
+          },
+          {
+            "bin_min": "8-12",
+            "count": 176
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 20
+          }
+        ]
+      },
+      "test": {
+        "n": 4356,
+        "mae_min": 3.394805506782247,
+        "rmse_min": 4.56158228024045,
+        "r2": 0.48659874481981635,
+        "bias_min": -2.349199745413391,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 497
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 509
+          },
+          {
+            "bin_min": "1-2",
+            "count": 870
+          },
+          {
+            "bin_min": "2-3",
+            "count": 687
+          },
+          {
+            "bin_min": "3-5",
+            "count": 734
+          },
+          {
+            "bin_min": "5-8",
+            "count": 600
+          },
+          {
+            "bin_min": "8-12",
+            "count": 388
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 71
+          }
+        ]
+      }
+    },
+    "median_baseline": {
+      "fit_seconds": 0.01,
+      "validation": {
+        "n": 2105,
+        "mae_min": 5.062664354351524,
+        "rmse_min": 6.348906503123152,
+        "r2": -0.015342935339250241,
+        "bias_min": -0.7804530518411716,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 122
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 126
+          },
+          {
+            "bin_min": "1-2",
+            "count": 249
+          },
+          {
+            "bin_min": "2-3",
+            "count": 233
+          },
+          {
+            "bin_min": "3-5",
+            "count": 474
+          },
+          {
+            "bin_min": "5-8",
+            "count": 486
+          },
+          {
+            "bin_min": "8-12",
+            "count": 295
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 120
+          }
+        ]
+      },
+      "test": {
+        "n": 4356,
+        "mae_min": 5.120768517004009,
+        "rmse_min": 6.43112987861391,
+        "r2": -0.020470515223796948,
+        "bias_min": -0.9108595931387669,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 278
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 264
+          },
+          {
+            "bin_min": "1-2",
+            "count": 530
+          },
+          {
+            "bin_min": "2-3",
+            "count": 423
+          },
+          {
+            "bin_min": "3-5",
+            "count": 958
+          },
+          {
+            "bin_min": "5-8",
+            "count": 1005
+          },
+          {
+            "bin_min": "8-12",
+            "count": 640
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 258
+          }
+        ]
+      }
+    },
+    "ridge": {
+      "fit_seconds": 0.01,
+      "validation": {
+        "n": 2105,
+        "mae_min": 1.7619755287281362,
+        "rmse_min": 2.2958714261157427,
+        "r2": 0.8672269247764047,
+        "bias_min": 0.015858807621541255,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 480
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 373
+          },
+          {
+            "bin_min": "1-2",
+            "count": 446
+          },
+          {
+            "bin_min": "2-3",
+            "count": 394
+          },
+          {
+            "bin_min": "3-5",
+            "count": 347
+          },
+          {
+            "bin_min": "5-8",
+            "count": 62
+          },
+          {
+            "bin_min": "8-12",
+            "count": 3
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 0
+          }
+        ]
+      },
+      "test": {
+        "n": 4356,
+        "mae_min": 1.786649838253726,
+        "rmse_min": 2.331885028804104,
+        "r2": 0.8658347115795056,
+        "bias_min": -0.07378369728759251,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 959
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 788
+          },
+          {
+            "bin_min": "1-2",
+            "count": 949
+          },
+          {
+            "bin_min": "2-3",
+            "count": 798
+          },
+          {
+            "bin_min": "3-5",
+            "count": 703
+          },
+          {
+            "bin_min": "5-8",
+            "count": 148
+          },
+          {
+            "bin_min": "8-12",
+            "count": 11
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 0
+          }
+        ]
+      }
+    },
+    "random_forest": {
+      "fit_seconds": 0.83,
+      "validation": {
+        "n": 2105,
+        "mae_min": 0.870453321698682,
+        "rmse_min": 1.5290668434934733,
+        "r2": 0.9411064368503403,
+        "bias_min": 0.0003960057184002979,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 1214
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 366
+          },
+          {
+            "bin_min": "1-2",
+            "count": 269
+          },
+          {
+            "bin_min": "2-3",
+            "count": 113
+          },
+          {
+            "bin_min": "3-5",
+            "count": 97
+          },
+          {
+            "bin_min": "5-8",
+            "count": 42
+          },
+          {
+            "bin_min": "8-12",
+            "count": 4
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 0
+          }
+        ]
+      },
+      "test": {
+        "n": 4356,
+        "mae_min": 0.735682,
+        "rmse_min": 1.357412,
+        "r2": 0.954518,
+        "median_abs_err": 0.33812,
+        "bias_min": -0.02589,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 2894
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 812
+          },
+          {
+            "bin_min": "1-2",
+            "count": 418
+          },
+          {
+            "bin_min": "2-3",
+            "count": 142
+          },
+          {
+            "bin_min": "3-5",
+            "count": 68
+          },
+          {
+            "bin_min": "5-8",
+            "count": 19
+          },
+          {
+            "bin_min": "8-12",
+            "count": 3
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 0
+          }
+        ]
+      }
+    },
+    "hist_gradient_boosting": {
+      "fit_seconds": 0.78,
+      "validation": {
+        "n": 2105,
+        "mae_min": 0.9204568585497116,
+        "rmse_min": 1.5540534388812164,
+        "r2": 0.939165942239711,
+        "bias_min": -0.00927030751019564,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 1108
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 460
+          },
+          {
+            "bin_min": "1-2",
+            "count": 256
+          },
+          {
+            "bin_min": "2-3",
+            "count": 133
+          },
+          {
+            "bin_min": "3-5",
+            "count": 105
+          },
+          {
+            "bin_min": "5-8",
+            "count": 38
+          },
+          {
+            "bin_min": "8-12",
+            "count": 5
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 0
+          }
+        ]
+      },
+      "test": {
+        "n": 4356,
+        "mae_min": 0.9953843031494233,
+        "rmse_min": 1.602158578436712,
+        "r2": 0.9366660027010868,
+        "bias_min": -0.04485050259961153,
+        "abs_error_histogram": [
+          {
+            "bin_min": "0-0.5",
+            "count": 2062
+          },
+          {
+            "bin_min": "0.5-1",
+            "count": 969
+          },
+          {
+            "bin_min": "1-2",
+            "count": 706
+          },
+          {
+            "bin_min": "2-3",
+            "count": 318
+          },
+          {
+            "bin_min": "3-5",
+            "count": 200
+          },
+          {
+            "bin_min": "5-8",
+            "count": 90
+          },
+          {
+            "bin_min": "8-12",
+            "count": 10
+          },
+          {
+            "bin_min": "12-inf",
+            "count": 1
+          }
+        ]
+      }
+    }
+  },
+  "selected_test_metrics": {
+    "n": 4356,
+    "mae_min": 0.735682,
+    "rmse_min": 1.357412,
+    "r2": 0.954518,
+    "median_abs_err": 0.33812,
+    "bias_min": -0.02589,
+    "abs_error_histogram": [
+      {
+        "bin_min": "0-0.5",
+        "count": 2894
+      },
+      {
+        "bin_min": "0.5-1",
+        "count": 812
+      },
+      {
+        "bin_min": "1-2",
+        "count": 418
+      },
+      {
+        "bin_min": "2-3",
+        "count": 142
+      },
+      {
+        "bin_min": "3-5",
+        "count": 68
+      },
+      {
+        "bin_min": "5-8",
+        "count": 19
+      },
+      {
+        "bin_min": "8-12",
+        "count": 3
+      },
+      {
+        "bin_min": "12-inf",
+        "count": 0
+      }
+    ]
+  },
+  "permutation_importance_validation": [
+    {
+      "feature": "segment_distance_km",
+      "importance_mean": 5.47952731865413,
+      "importance_std": 0.03382046312985171
+    },
+    {
+      "feature": "entry_speed_mps",
+      "importance_mean": 1.1142270868047188,
+      "importance_std": 0.015490334220957878
+    },
+    {
+      "feature": "bearing_sin",
+      "importance_mean": 0.6247251697280233,
+      "importance_std": 0.021365526571562474
+    },
+    {
+      "feature": "tailwind_proxy_ms",
+      "importance_mean": 0.5791723712718277,
+      "importance_std": 0.026664495197029355
+    },
+    {
+      "feature": "entry_altitude_m",
+      "importance_mean": 0.391091711750852,
+      "importance_std": 0.01018790083153089
+    },
+    {
+      "feature": "to_airport",
+      "importance_mean": 0.2867747757139848,
+      "importance_std": 0.016899873929631926
+    },
+    {
+      "feature": "bearing_cos",
+      "importance_mean": 0.12921623546652408,
+      "importance_std": 0.0024066170531228405
+    },
+    {
+      "feature": "from_airport",
+      "importance_mean": 0.06002945780316811,
+      "importance_std": 0.0038092884165455906
+    },
+    {
+      "feature": "hour_cos",
+      "importance_mean": 0.030030505976716238,
+      "importance_std": 0.004058122583693228
+    },
+    {
+      "feature": "hour_sin",
+      "importance_mean": 0.015413310681551029,
+      "importance_std": 0.0036940760185737295
+    },
+    {
+      "feature": "weather_severity",
+      "importance_mean": 0.012895055934283594,
+      "importance_std": 0.002709159852749847
+    },
+    {
+      "feature": "corridor_count_prev_window",
+      "importance_mean": 0.01016440679119055,
+      "importance_std": 0.0017249678100742
+    }
+  ],
+  "builtin_importance": [
+    {
+      "feature": "segment_distance_km",
+      "importance": 0.6719639546569351
+    },
+    {
+      "feature": "entry_speed_mps",
+      "importance": 0.14999640900638142
+    },
+    {
+      "feature": "bearing_sin",
+      "importance": 0.057553813024719826
+    },
+    {
+      "feature": "entry_altitude_m",
+      "importance": 0.04306671993678909
+    },
+    {
+      "feature": "tailwind_proxy_ms",
+      "importance": 0.03552449555228826
+    },
+    {
+      "feature": "bearing_cos",
+      "importance": 0.008906863523813868
+    },
+    {
+      "feature": "to_airport",
+      "importance": 0.00789056260223255
+    },
+    {
+      "feature": "hour_cos",
+      "importance": 0.00659356123098699
+    },
+    {
+      "feature": "hour_sin",
+      "importance": 0.006357931886376026
+    },
+    {
+      "feature": "weather_severity",
+      "importance": 0.005165855063669789
+    },
+    {
+      "feature": "corridor_count_prev_window",
+      "importance": 0.004570143203978956
+    },
+    {
+      "feature": "from_airport",
+      "importance": 0.002409690311828218
+    }
+  ],
+  "training_ranges": {
+    "segment_distance_km": [
+      102.874,
+      411.602
+    ],
+    "bearing_sin": [
+      -0.9998793586966922,
+      0.9999978067553793
+    ],
+    "bearing_cos": [
+      -0.9998766324816606,
+      0.9998793586966922
+    ],
+    "hour_sin": [
+      -0.999533590836713,
+      0.9996573249755573
+    ],
+    "hour_cos": [
+      -0.9997620270799091,
+      0.9917529099420574
+    ],
+    "from_airport": [
+      0.0,
+      1.0
+    ],
+    "to_airport": [
+      0.0,
+      1.0
+    ],
+    "entry_speed_mps": [
+      83.6684,
+      257.16
+    ],
+    "entry_altitude_m": [
+      0.0,
+      11860.6
+    ],
+    "tailwind_proxy_ms": [
+      -11.07379656486206,
+      11.068175855895483
+    ],
+    "weather_severity": [
+      0.0,
+      0.3343
+    ],
+    "corridor_count_prev_window": [
+      0.0,
+      7.666666666666667
+    ]
+  },
+  "planning_defaults": {
+    "entry_speed_mps_by_edge": {
+      "SFW02->SFW05": 225.8,
+      "SFW02->VOMM": 236.64,
+      "SFW02->VOTV": 216.76,
+      "SFW03->VOCI": 238.7,
+      "SFW03->VOGO": 210.79,
+      "SFW04->SFW08": 204.78,
+      "SFW04->VOBL": 215.74,
+      "SFW04->VOCI": 217.97,
+      "SFW05->SFW02": 206.01,
+      "SFW05->VOBL": 188.38,
+      "SFW05->VOMM": 202.51,
+      "SFW07->VABB": 224.43,
+      "SFW07->VOGO": 245.64,
+      "SFW08->SFW04": 235.37,
+      "SFW08->VOBL": 247.92,
+      "SFW08->VOGO": 205.86,
+      "SFW08->VOHS": 227.77,
+      "SFW09->SFW13": 216.08,
+      "SFW09->VOBL": 225.74,
+      "SFW09->VOHS": 205.37,
+      "SFW09->VOMM": 227.6,
+      "SFW12->SFW13": 238.14,
+      "SFW12->SFW18": 209.96,
+      "SFW12->VABB": 202.58,
+      "SFW12->VAPO": 199.93,
+      "SFW12->VOHS": 246.57,
+      "SFW13->SFW09": 232.54,
+      "SFW13->SFW12": 184.24,
+      "SFW13->VANP": 205.1,
+      "SFW13->VOHS": 188.59,
+      "SFW17->SFW18": 224.59,
+      "SFW17->VAAH": 220.13,
+      "SFW17->VABB": 181.46,
+      "SFW17->VAPO": 231.52,
+      "SFW18->SFW12": 228.28,
+      "SFW18->SFW17": 209.82,
+      "SFW18->VAID": 223.96,
+      "SFW18->VANP": 244.69,
+      "SFW18->VAPO": 214.4,
+      "SFW19->SFW20": 245.24,
+      "SFW19->SFW27": 213.63,
+      "SFW19->VANP": 199.68,
+      "SFW19->VEBS": 248.97,
+      "SFW20->SFW19": 199.28,
+      "SFW20->SFW28": 229.68,
+      "SFW20->VEBS": 196.52,
+      "SFW21->VEBS": 184.11,
+      "SFW21->VECC": 180.39,
+      "SFW23->SFW31": 213.17,
+      "SFW23->VAAH": 193.44,
+      "SFW24->SFW25": 220.7,
+      "SFW24->SFW31": 215.14,
+      "SFW24->VAAH": 172.7,
+      "SFW25->SFW24": 202.23,
+      "SFW25->SFW26": 247.84,
+      "SFW25->VABP": 231.32,
+      "SFW25->VAID": 210.32,
+      "SFW25->VIJP": 227.82,
+      "SFW26->SFW25": 200.73,
+      "SFW26->SFW27": 240.2,
+      "SFW26->SFW33": 235.89,
+      "SFW26->VABP": 199.96,
+      "SFW26->VANP": 211.21,
+      "SFW26->VILK": 244.64,
+      "SFW27->SFW19": 223.46,
+      "SFW27->SFW26": 204.6,
+      "SFW27->SFW28": 249.44,
+      "SFW27->SFW34": 203.59,
+      "SFW28->SFW20": 210.44,
+      "SFW28->SFW27": 203.53,
+      "SFW28->SFW29": 245.79,
+      "SFW28->SFW35": 249.26,
+      "SFW28->VECC": 248.55,
+      "SFW29->SFW28": 199.54,
+      "SFW29->VECC": 193.15,
+      "SFW29->VEGT": 247.93,
+      "SFW31->SFW23": 195.1,
+      "SFW31->SFW24": 209.88,
+      "SFW31->SFW37": 238.7,
+      "SFW31->VIJP": 248.05,
+      "SFW32->SFW31": 174.43,
+      "SFW32->SFW33": 200.71,
+      "SFW32->VIDP": 195.59,
+      "SFW32->VIJP": 168.12,
+      "SFW33->SFW26": 222.46,
+      "SFW33->SFW32": 217.16,
+      "SFW33->VIDP": 225.41,
+      "SFW33->VILK": 236.96,
+      "SFW34->SFW27": 189.2,
+      "SFW34->VILK": 214.6,
+      "SFW35->VEGT": 241.7,
+      "SFW36->SFW29": 196.58,
+      "SFW37->SFW31": 205.48,
+      "SFW37->VIAR": 242.62,
+      "SFW38->VIAR": 205.17,
+      "SFW38->VIDP": 230.05,
+      "VAAH->SFW17": 119.33,
+      "VAAH->SFW23": 99.68,
+      "VAAH->SFW24": 139.24,
+      "VAAH->VAID": 135.3,
+      "VABB->SFW07": 163.87,
+      "VABB->SFW12": 137.4,
+      "VABB->SFW17": 116.79,
+      "VABB->VAPO": 136.03,
+      "VABP->SFW25": 209.77,
+      "VABP->SFW26": 241.29,
+      "VABP->VAID": 191.26,
+      "VABP->VANP": 234.29,
+      "VAID->SFW18": 210.37,
+      "VAID->SFW25": 233.99,
+      "VAID->VAAH": 198.04,
+      "VAID->VABP": 225.34,
+      "VANP->SFW13": 221.28,
+      "VANP->SFW18": 192.97,
+      "VANP->SFW19": 240.34,
+      "VANP->SFW26": 221.9,
+      "VANP->VABP": 208.07,
+      "VAPO->SFW12": 207.05,
+      "VAPO->SFW17": 205.4,
+      "VAPO->SFW18": 185.97,
+      "VAPO->VABB": 147.21,
+      "VAPO->VOGO": 211.36,
+      "VEBS->SFW19": 198.29,
+      "VEBS->SFW20": 105.88,
+      "VEBS->SFW21": 247.1,
+      "VECC->SFW21": 113.23,
+      "VECC->SFW28": 97.29,
+      "VECC->SFW29": 175.4,
+      "VEGT->SFW29": 87.34,
+      "VEGT->SFW36": 120.85,
+      "VIAR->SFW37": 88.91,
+      "VIAR->SFW38": 126.4,
+      "VIAR->VIDP": 119.4,
+      "VIDP->SFW32": 97.96,
+      "VIDP->SFW33": 122.96,
+      "VIDP->SFW38": 221.31,
+      "VIDP->VIAR": 222.98,
+      "VIDP->VIJP": 87.83,
+      "VIJP->SFW25": 199.94,
+      "VIJP->SFW31": 195.77,
+      "VIJP->SFW32": 148.71,
+      "VIJP->VIDP": 230.26,
+      "VILK->SFW26": 90.73,
+      "VILK->SFW33": 93.11,
+      "VILK->SFW34": 140.82,
+      "VOBL->SFW04": 216.36,
+      "VOBL->SFW05": 190.32,
+      "VOBL->SFW08": 96.22,
+      "VOBL->SFW09": 120.65,
+      "VOBL->VOMM": 225.31,
+      "VOCI->SFW02": 140.46,
+      "VOCI->SFW03": 98.31,
+      "VOCI->SFW04": 111.93,
+      "VOCI->VOTV": 210.35,
+      "VOGO->SFW03": 236.35,
+      "VOGO->SFW07": 102.94,
+      "VOGO->SFW08": 236.38,
+      "VOGO->VAPO": 202.64,
+      "VOHS->SFW08": 110.91,
+      "VOHS->SFW09": 236.52,
+      "VOHS->SFW12": 100.62,
+      "VOHS->SFW13": 127.24,
+      "VOMM->SFW05": 119.82,
+      "VOMM->SFW09": 100.82,
+      "VOMM->VOBL": 98.33,
+      "VOTV->SFW02": 132.43,
+      "VOTV->VOCI": 108.26
+    },
+    "entry_altitude_m_by_edge": {
+      "SFW02->SFW05": 11845.3,
+      "SFW02->VOMM": 10054.6,
+      "SFW02->VOTV": 10647.1,
+      "SFW03->VOCI": 10946.1,
+      "SFW03->VOGO": 10647.8,
+      "SFW04->SFW08": 9452.1,
+      "SFW04->VOBL": 9924.8,
+      "SFW04->VOCI": 9458.6,
+      "SFW05->SFW02": 8273.2,
+      "SFW05->VOBL": 7414.5,
+      "SFW05->VOMM": 7852.4,
+      "SFW07->VABB": 11254.3,
+      "SFW07->VOGO": 11274.2,
+      "SFW08->SFW04": 10347.8,
+      "SFW08->VOBL": 10644.4,
+      "SFW08->VOGO": 10653.8,
+      "SFW08->VOHS": 10660.6,
+      "SFW09->SFW13": 10655.3,
+      "SFW09->VOBL": 10650.8,
+      "SFW09->VOHS": 10640.3,
+      "SFW09->VOMM": 9637.0,
+      "SFW12->SFW13": 10652.8,
+      "SFW12->SFW18": 10656.7,
+      "SFW12->VABB": 10348.6,
+      "SFW12->VAPO": 10051.2,
+      "SFW12->VOHS": 10652.8,
+      "SFW13->SFW09": 10646.4,
+      "SFW13->SFW12": 7418.8,
+      "SFW13->VANP": 10643.1,
+      "SFW13->VOHS": 6439.2,
+      "SFW17->SFW18": 9300.4,
+      "SFW17->VAAH": 10651.5,
+      "SFW17->VABB": 7928.0,
+      "SFW17->VAPO": 10653.2,
+      "SFW18->SFW12": 10655.2,
+      "SFW18->SFW17": 10650.8,
+      "SFW18->VAID": 10647.4,
+      "SFW18->VANP": 10648.3,
+      "SFW18->VAPO": 10647.2,
+      "SFW19->SFW20": 10641.2,
+      "SFW19->SFW27": 10644.5,
+      "SFW19->VANP": 10649.2,
+      "SFW19->VEBS": 10656.2,
+      "SFW20->SFW19": 10049.6,
+      "SFW20->SFW28": 10053.3,
+      "SFW20->VEBS": 6066.6,
+      "SFW21->VEBS": 7657.1,
+      "SFW21->VECC": 6449.9,
+      "SFW23->SFW31": 11245.8,
+      "SFW23->VAAH": 9299.1,
+      "SFW24->SFW25": 7574.0,
+      "SFW24->SFW31": 8270.7,
+      "SFW24->VAAH": 7022.8,
+      "SFW25->SFW24": 10050.4,
+      "SFW25->SFW26": 10057.5,
+      "SFW25->VABP": 10062.7,
+      "SFW25->VAID": 10642.8,
+      "SFW25->VIJP": 10646.0,
+      "SFW26->SFW25": 10653.2,
+      "SFW26->SFW27": 10651.5,
+      "SFW26->SFW33": 11230.6,
+      "SFW26->VABP": 10644.7,
+      "SFW26->VANP": 10644.1,
+      "SFW26->VILK": 10653.6,
+      "SFW27->SFW19": 11246.2,
+      "SFW27->SFW26": 10649.2,
+      "SFW27->SFW28": 10647.8,
+      "SFW27->SFW34": 10056.2,
+      "SFW28->SFW20": 10350.6,
+      "SFW28->SFW27": 10652.3,
+      "SFW28->SFW29": 10651.4,
+      "SFW28->SFW35": 11544.4,
+      "SFW28->VECC": 10646.8,
+      "SFW29->SFW28": 10647.3,
+      "SFW29->VECC": 9049.3,
+      "SFW29->VEGT": 10644.3,
+      "SFW31->SFW23": 9466.9,
+      "SFW31->SFW24": 11247.6,
+      "SFW31->SFW37": 10060.4,
+      "SFW31->VIJP": 10348.2,
+      "SFW32->SFW31": 7661.6,
+      "SFW32->SFW33": 7826.5,
+      "SFW32->VIDP": 6585.4,
+      "SFW32->VIJP": 7485.4,
+      "SFW33->SFW26": 10639.8,
+      "SFW33->SFW32": 10649.0,
+      "SFW33->VIDP": 11238.0,
+      "SFW33->VILK": 10048.7,
+      "SFW34->SFW27": 9243.3,
+      "SFW34->VILK": 8040.8,
+      "SFW35->VEGT": 11564.7,
+      "SFW36->SFW29": 6773.2,
+      "SFW37->SFW31": 11248.7,
+      "SFW37->VIAR": 10057.5,
+      "SFW38->VIAR": 9941.0,
+      "SFW38->VIDP": 10050.2,
+      "VAAH->SFW17": 3.2,
+      "VAAH->SFW23": 10.2,
+      "VAAH->SFW24": 1.8,
+      "VAAH->VAID": 4.4,
+      "VABB->SFW07": 6427.2,
+      "VABB->SFW12": 1.1,
+      "VABB->SFW17": 0.0,
+      "VABB->VAPO": 1.1,
+      "VABP->SFW25": 10056.4,
+      "VABP->SFW26": 9459.8,
+      "VABP->VAID": 9454.8,
+      "VABP->VANP": 10046.0,
+      "VAID->SFW18": 10057.5,
+      "VAID->SFW25": 10647.4,
+      "VAID->VAAH": 10646.9,
+      "VAID->VABP": 9444.0,
+      "VANP->SFW13": 10643.0,
+      "VANP->SFW18": 10061.3,
+      "VANP->SFW19": 10650.8,
+      "VANP->SFW26": 11236.9,
+      "VANP->VABP": 10047.4,
+      "VAPO->SFW12": 6814.5,
+      "VAPO->SFW17": 10043.0,
+      "VAPO->SFW18": 5806.4,
+      "VAPO->VABB": 5126.8,
+      "VAPO->VOGO": 9460.0,
+      "VEBS->SFW19": 10048.8,
+      "VEBS->SFW20": 0.0,
+      "VEBS->SFW21": 10652.1,
+      "VECC->SFW21": 0.0,
+      "VECC->SFW28": 0.0,
+      "VECC->SFW29": 5020.7,
+      "VEGT->SFW29": 0.0,
+      "VEGT->SFW36": 0.0,
+      "VIAR->SFW37": 0.2,
+      "VIAR->SFW38": 2.4,
+      "VIAR->VIDP": 2.8,
+      "VIDP->SFW32": 0.5,
+      "VIDP->SFW33": 0.8,
+      "VIDP->SFW38": 10651.4,
+      "VIDP->VIAR": 11256.2,
+      "VIDP->VIJP": 0.7,
+      "VIJP->SFW25": 10051.2,
+      "VIJP->SFW31": 10663.0,
+      "VIJP->SFW32": 4.7,
+      "VIJP->VIDP": 9559.8,
+      "VILK->SFW26": 0.1,
+      "VILK->SFW33": 0.0,
+      "VILK->SFW34": 2.0,
+      "VOBL->SFW04": 10049.0,
+      "VOBL->SFW05": 5321.7,
+      "VOBL->SFW08": 1.2,
+      "VOBL->SFW09": 3.7,
+      "VOBL->VOMM": 9441.7,
+      "VOCI->SFW02": 3.2,
+      "VOCI->SFW03": 6.4,
+      "VOCI->SFW04": 10.6,
+      "VOCI->VOTV": 8211.3,
+      "VOGO->SFW03": 10642.2,
+      "VOGO->SFW07": 1.8,
+      "VOGO->SFW08": 10044.2,
+      "VOGO->VAPO": 9749.6,
+      "VOHS->SFW08": 3.9,
+      "VOHS->SFW09": 10042.5,
+      "VOHS->SFW12": 10.2,
+      "VOHS->SFW13": 0.0,
+      "VOMM->SFW05": 0.0,
+      "VOMM->SFW09": 0.0,
+      "VOMM->VOBL": 0.5,
+      "VOTV->SFW02": 2.5,
+      "VOTV->VOCI": 4.9
+    },
+    "entry_speed_mps_by_from_airport": {
+      "0": 219.9,
+      "1": 190.99
+    },
+    "entry_altitude_m_by_from_airport": {
+      "0": 10635.2,
+      "1": 8124.8
+    },
+    "note": "At planning time the actual entry speed/altitude is unknown; the training-split median for the edge (or for airport/non-airport origin) is used as a documented proxy."
+  },
+  "heuristic_speed_kmh": 780.0,
+  "random_seed": 20260115,
+  "data_kind": "synthetic",
+  "dataset_id": "synthetic_demo_v1",
+  "data_notice": "Trained on SYNTHETIC demonstration data. Metrics are software-demonstration figures, NOT evidence of real-world aviation accuracy.",
+  "trained_at_utc": "2026-10-27T19:07:36.654297+00:00",
+  "source_manifest": "data/source_manifest.json",
+  "kind": "eta",
+  "version": "v20261027T190839Z",
+  "sha256": "a61d9ad2679bf7054a0cc5192da6fdb77643af8d1c7a59a435e5039c75b978dd",
+  "library_versions": {
+    "python": "3.11.9",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "joblib": "1.6.0",
+    "networkx": "3.6.1"
+  }
+}

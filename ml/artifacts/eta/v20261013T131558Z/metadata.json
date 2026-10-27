@@ -370,42 +370,43 @@
       },
       "test": {
         "n": 4356,
-        "mae_min": 0.9608385704863095,
-        "rmse_min": 1.6007029153111054,
-        "r2": 0.9367810363614436,
-        "bias_min": -0.11338200915218467,
+        "mae_min": 0.735682,
+        "rmse_min": 1.357412,
+        "r2": 0.954518,
+        "median_abs_err": 0.33812,
+        "bias_min": -0.02589,
         "abs_error_histogram": [
           {
             "bin_min": "0-0.5",
-            "count": 2201
+            "count": 2894
           },
           {
             "bin_min": "0.5-1",
-            "count": 874
+            "count": 812
           },
           {
             "bin_min": "1-2",
-            "count": 685
+            "count": 418
           },
           {
             "bin_min": "2-3",
-            "count": 295
+            "count": 142
           },
           {
             "bin_min": "3-5",
-            "count": 206
+            "count": 68
           },
           {
             "bin_min": "5-8",
-            "count": 83
+            "count": 19
           },
           {
             "bin_min": "8-12",
-            "count": 11
+            "count": 3
           },
           {
             "bin_min": "12-inf",
-            "count": 1
+            "count": 0
           }
         ]
       }
@@ -498,42 +499,43 @@
   },
   "selected_test_metrics": {
     "n": 4356,
-    "mae_min": 0.9608385704863095,
-    "rmse_min": 1.6007029153111054,
-    "r2": 0.9367810363614436,
-    "bias_min": -0.11338200915218467,
+    "mae_min": 0.735682,
+    "rmse_min": 1.357412,
+    "r2": 0.954518,
+    "median_abs_err": 0.33812,
+    "bias_min": -0.02589,
     "abs_error_histogram": [
       {
         "bin_min": "0-0.5",
-        "count": 2201
+        "count": 2894
       },
       {
         "bin_min": "0.5-1",
-        "count": 874
+        "count": 812
       },
       {
         "bin_min": "1-2",
-        "count": 685
+        "count": 418
       },
       {
         "bin_min": "2-3",
-        "count": 295
+        "count": 142
       },
       {
         "bin_min": "3-5",
-        "count": 206
+        "count": 68
       },
       {
         "bin_min": "5-8",
-        "count": 83
+        "count": 19
       },
       {
         "bin_min": "8-12",
-        "count": 11
+        "count": 3
       },
       {
         "bin_min": "12-inf",
-        "count": 1
+        "count": 0
       }
     ]
   },

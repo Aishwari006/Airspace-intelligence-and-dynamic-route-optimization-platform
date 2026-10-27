@@ -1,0 +1,11 @@
+metric,value,evaluation_split,sample_count,interpretation
+Accuracy,0.97241,test,16999,Overall proportion of correct predictions across all classes
+Balanced Accuracy,0.883853,test,16999,Unweighted average recall across classes (guards against majority-class dominance)
+Macro F1,0.895204,test,16999,Unweighted harmonic mean of precision and recall averaged across classes
+Weighted F1,0.972378,test,16999,F1-score averaged according to each class's test support
+Macro Precision,0.909004,test,16999,Unweighted average precision across classes
+Weighted Precision,0.972635,test,16999,Precision averaged according to class support
+Macro Recall,0.883853,test,16999,Unweighted average recall across classes (identical to balanced accuracy)
+Weighted Recall,0.97241,test,16999,Recall averaged according to class support (identical to accuracy)
+Multi-class Brier Score,0.057063,test,16999,"Mean squared probability calibration error (lower is better, range [0, 2])"
+ROC-AUC OvR Macro,0.955768,test,16999,"One-vs-Rest Area Under the ROC Curve, macro-averaged (chance = 0.5)"

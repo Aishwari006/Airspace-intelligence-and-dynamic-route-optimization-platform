@@ -1,20 +1,94 @@
 {
+  "project": "Sky Force - AI Airspace Intelligence",
+  "generated_at_utc": "2026-10-27T19:14:49.873816+00:00",
+  "disclaimer": "Academic ML models for spatial airspace density and airway travel-time proxies. Trained on reproducible synthetic demonstration data. NOT for tactical ATC separation.",
   "congestion": {
-    "version": "v20261013T131547Z",
+    "version": "v20261027T190831Z",
     "model": "random_forest",
+    "algorithm": "RandomForestClassifier(n_estimators=200, max_depth=16, min_samples_leaf=3, class_weight='balanced_subsample')",
+    "task": "3-class research congestion proxy for the NEXT 15-minute window",
+    "target": "next_window_class (LOW <= 2, MEDIUM 3-4, HIGH >= 5 unique aircraft)",
+    "splits": {
+      "train": [
+        "2026-01-15T00:00:00+00:00",
+        "2026-01-20T00:00:00+00:00"
+      ],
+      "validation": [
+        "2026-01-20T00:00:00+00:00",
+        "2026-01-21T00:00:00+00:00"
+      ],
+      "test": [
+        "2026-01-21T00:00:00+00:00",
+        "2026-01-23T00:00:00+00:00"
+      ],
+      "method": "chronological; rows whose target window crosses a boundary are purged"
+    },
+    "sample_counts": {
+      "train": 42631,
+      "validation": 8455,
+      "test": 16999,
+      "excluded_missing_target": 89
+    },
+    "class_distribution": {
+      "train": {
+        "LOW": 37708,
+        "MEDIUM": 3587,
+        "HIGH": 1336
+      },
+      "val": {
+        "LOW": 7493,
+        "MEDIUM": 680,
+        "HIGH": 282
+      },
+      "test": {
+        "LOW": 15009,
+        "MEDIUM": 1387,
+        "HIGH": 603
+      }
+    },
+    "feature_count": 54,
     "test": {
-      "accuracy": 0.8470498264603801,
-      "balanced_accuracy": 0.7139041150064962,
-      "macro_f1": 0.6359324095553648
-    }
+      "accuracy": 0.9724101417730455,
+      "balanced_accuracy": 0.883852837519734,
+      "macro_f1": 0.895204443135038,
+      "weighted_f1": 0.9723784735465171
+    },
+    "artifact_path": "E:\\Cummins Workspace\\AIML\\mini project\\ml\\artifacts\\congestion\\v20261027T190831Z\\model.joblib"
   },
   "eta": {
-    "version": "v20261013T131558Z",
+    "version": "v20261027T190839Z",
     "model": "random_forest",
+    "algorithm": "RandomForestRegressor(n_estimators=200, max_depth=18, min_samples_leaf=2)",
+    "task": "segment traversal time regression in minutes",
+    "target": "traversal_duration_min (time between consecutive observed airway graph node passages)",
+    "splits": {
+      "train": [
+        "2026-01-15T00:00:00+00:00",
+        "2026-01-20T00:00:00+00:00"
+      ],
+      "validation": [
+        "2026-01-20T00:00:00+00:00",
+        "2026-01-21T00:00:00+00:00"
+      ],
+      "test": [
+        "2026-01-21T00:00:00+00:00",
+        "2026-01-23T00:00:00+00:00"
+      ],
+      "method": "chronological; rows whose target window crosses a boundary are purged"
+    },
+    "sample_counts": {
+      "train": 10746,
+      "validation": 2105,
+      "test": 4356
+    },
+    "feature_count": 12,
     "test": {
-      "mae_min": 0.9608385704863095,
-      "rmse_min": 1.6007029153111054,
-      "r2": 0.9367810363614436
-    }
+      "mae_min": 0.735682,
+      "rmse_min": 1.2204246368755765,
+      "r2": 0.9632508047878566,
+      "median_abs_error_min": 0.37490650606688014,
+      "mean_signed_error_min": -0.023272999096890453
+    },
+    "artifact_path": "E:\\Cummins Workspace\\AIML\\mini project\\ml\\artifacts\\eta\\v20261027T190839Z\\model.joblib"
   }
 }

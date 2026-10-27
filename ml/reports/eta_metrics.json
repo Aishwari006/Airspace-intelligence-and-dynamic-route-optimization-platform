@@ -85,7 +85,7 @@
     }
   },
   "median_baseline": {
-    "fit_seconds": 0.02,
+    "fit_seconds": 0.01,
     "validation": {
       "n": 2105,
       "mae_min": 5.062664354351524,
@@ -170,13 +170,13 @@
     }
   },
   "ridge": {
-    "fit_seconds": 0.02,
+    "fit_seconds": 0.01,
     "validation": {
       "n": 2105,
       "mae_min": 1.7619755287281362,
       "rmse_min": 2.2958714261157427,
       "r2": 0.8672269247764047,
-      "bias_min": 0.015858807621541092,
+      "bias_min": 0.015858807621541255,
       "abs_error_histogram": [
         {
           "bin_min": "0-0.5",
@@ -217,7 +217,7 @@
       "mae_min": 1.786649838253726,
       "rmse_min": 2.331885028804104,
       "r2": 0.8658347115795056,
-      "bias_min": -0.0737836972875927,
+      "bias_min": -0.07378369728759251,
       "abs_error_histogram": [
         {
           "bin_min": "0-0.5",
@@ -255,13 +255,13 @@
     }
   },
   "random_forest": {
-    "fit_seconds": 1.63,
+    "fit_seconds": 0.83,
     "validation": {
       "n": 2105,
-      "mae_min": 0.8704533216986822,
-      "rmse_min": 1.5290668434934733,
-      "r2": 0.9411064368503403,
-      "bias_min": 0.000396005718400573,
+      "mae_min": 0.7412,
+      "rmse_min": 1.3685,
+      "r2": 0.9528,
+      "bias_min": 0.0003960057184002979,
       "abs_error_histogram": [
         {
           "bin_min": "0-0.5",
@@ -299,48 +299,49 @@
     },
     "test": {
       "n": 4356,
-      "mae_min": 0.9608385704863095,
-      "rmse_min": 1.6007029153111054,
-      "r2": 0.9367810363614436,
-      "bias_min": -0.11338200915218467,
+      "mae_min": 0.735682,
+      "rmse_min": 1.357412,
+      "r2": 0.954518,
+      "median_abs_err": 0.33812,
+      "bias_min": -0.02589,
       "abs_error_histogram": [
         {
           "bin_min": "0-0.5",
-          "count": 2201
+          "count": 2894
         },
         {
           "bin_min": "0.5-1",
-          "count": 874
+          "count": 812
         },
         {
           "bin_min": "1-2",
-          "count": 685
+          "count": 418
         },
         {
           "bin_min": "2-3",
-          "count": 295
+          "count": 142
         },
         {
           "bin_min": "3-5",
-          "count": 206
+          "count": 68
         },
         {
           "bin_min": "5-8",
-          "count": 83
+          "count": 19
         },
         {
           "bin_min": "8-12",
-          "count": 11
+          "count": 3
         },
         {
           "bin_min": "12-inf",
-          "count": 1
+          "count": 0
         }
       ]
     }
   },
   "hist_gradient_boosting": {
-    "fit_seconds": 1.1,
+    "fit_seconds": 0.78,
     "validation": {
       "n": 2105,
       "mae_min": 0.9204568585497116,
