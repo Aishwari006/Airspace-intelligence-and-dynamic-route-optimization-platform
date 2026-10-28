@@ -44,9 +44,22 @@ export const SegmentInspector: React.FC<SegmentInspectorProps> = ({ segment, onC
 
         <div className="p-2.5 rounded-lg bg-aerospace-950 border border-aerospace-800">
           <div className="text-[10px] text-slate-400 uppercase flex items-center gap-1">
-            <Clock className="w-3 h-3 text-cyan-400" /> Traversal Time
+            <Clock className="w-3 h-3 text-cyan-400" /> Traversal Time (ETA)
           </div>
-          <div className="text-sm font-bold text-cyan-300 mt-0.5">{segment.time_min.toFixed(1)} min</div>
+          <div className="text-sm font-bold text-cyan-300 mt-0.5 flex items-baseline gap-1.5 flex-wrap">
+            <span>{segment.time_min.toFixed(1)} min</span>
+            {(() => {
+              const refTime = (segment.distance_km / 800) * 60;
+              const segDelta = segment.time_min - refTime;
+              return segDelta > 0.1 ? (
+                <span className="text-rose-400 text-[10px] font-semibold">(+{segDelta.toFixed(1)}m delay)</span>
+              ) : segDelta < -0.1 ? (
+                <span className="text-emerald-400 text-[10px] font-semibold">(-{Math.abs(segDelta).toFixed(1)}m early)</span>
+              ) : (
+                <span className="text-cyan-400 text-[10px]">(On Schedule)</span>
+              );
+            })()}
+          </div>
           <div className="text-[10px] text-slate-500 mt-1 truncate" title={segment.time_source}>
             {segment.time_source}
           </div>

@@ -13,10 +13,12 @@ import {
   Layers,
   Database,
   ShieldAlert,
-  ArrowRight
+  ArrowRight,
+  Plane,
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import type { Airport, RouteDetail, CompareRoutesResponse, AirspaceNetwork, RouteSegment, DatasetSummaryItem } from '../types';
+import type { Airport, RouteDetail, CompareRoutesResponse, AirspaceNetwork, RouteSegment, DatasetSummaryItem, FlightSummary } from '../types';
+import { calculateEtaInfo, formatFlightEta } from '../services/etaUtils';
 import { api } from '../services/api';
 import { AirspaceMap } from '../components/AirspaceMap';
 import { Airspace3DMap } from '../components/Airspace3DMap';
@@ -59,6 +61,11 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
   // Selected route segment for bidirectional inspector
   const [selectedSegment, setSelectedSegment] = useState<RouteSegment | null>(null);
 
+  // Corridor flights monitored on this Origin -> Destination route
+  const [routeFlights, setRouteFlights] = useState<FlightSummary[]>([]);
+  const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const [flightsLoading, setFlightsLoading] = useState<boolean>(false);
+
   // Custom Weights
   const [weights, setWeights] = useState({
     distance: 0.25,
@@ -100,6 +107,36 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
     fetchDatasetsList();
     return () => { cancelled = true; };
   }, []);
+
+  // Load monitored flights on this route corridor
+  useEffect(() => {
+    let cancelled = false;
+    const loadCorridorFlights = async () => {
+      if (!origin || !destination || origin === destination) {
+        setRouteFlights([]);
+        setSelectedFlightId(null);
+        return;
+      }
+      setFlightsLoading(true);
+      try {
+        const res = await api.getDelayFlights({ origin, destination, limit: 8 });
+        if (!cancelled && res && Array.isArray(res.flights)) {
+          setRouteFlights(res.flights);
+          if (res.flights.length > 0) {
+            setSelectedFlightId(res.flights[0].flight_id);
+          } else {
+            setSelectedFlightId(null);
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load corridor flights:', e);
+      } finally {
+        if (!cancelled) setFlightsLoading(false);
+      }
+    };
+    loadCorridorFlights();
+    return () => { cancelled = true; };
+  }, [origin, destination]);
 
   // Synchronize overlays whenever traffic dataset changes
   useEffect(() => {
@@ -232,6 +269,20 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
   };
 
   const hasHighUncertainty = (routeResult?.totals?.mean_uncertainty ?? 0) > 0.25;
+
+  // Compute baseline traversal time for delta comparison (+delay / -early)
+  const baselineTimeMin =
+    compareResult?.routes?.find((r) => r.label.includes('distance'))?.totals?.estimated_time_min ??
+    ((routeResult?.totals?.distance_km || 0) > 0 ? (routeResult!.totals!.distance_km / 800) * 60 : undefined);
+
+  const activeFlight = routeFlights.find((f) => f.flight_id === selectedFlightId);
+  const flightDepartureUtc = activeFlight?.scheduled_departure_utc || '2026-01-22T09:00:00Z';
+
+  const primaryEta = calculateEtaInfo(
+    routeResult?.totals?.estimated_time_min || 0,
+    baselineTimeMin,
+    flightDepartureUtc
+  );
 
   return (
     <div className="space-y-6">
@@ -404,6 +455,63 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
         )}
       </div>
 
+      {/* Monitored Flights on this Route Corridor with ETA & Delay/Early Tag */}
+      {routeFlights.length > 0 && (
+        <div className="bg-aerospace-900 border border-aerospace-800 rounded-xl p-4 shadow-lg space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+            <span className="flex items-center gap-1.5 text-cyan-400 font-bold uppercase tracking-wider">
+              <Plane className="w-3.5 h-3.5" />
+              FLIGHTS ON THIS ROUTE ({origin} ➔ {destination}) · {routeFlights.length} Monitored
+            </span>
+            <span className="text-[11px] text-slate-400">
+              Each flight displays Estimated Time of Arrival (ETA) with (+delay) or (-early) status
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {routeFlights.map((flight) => {
+              const eta = formatFlightEta(flight);
+              const isSelected = flight.flight_id === selectedFlightId;
+              return (
+                <div
+                  key={flight.flight_id}
+                  onClick={() => setSelectedFlightId(flight.flight_id)}
+                  className={`p-2.5 rounded-lg border text-xs font-mono transition cursor-pointer ${
+                    isSelected
+                      ? 'bg-cyan-950/70 border-cyan-500 shadow-md ring-1 ring-cyan-500/50'
+                      : 'bg-aerospace-950/80 border-aerospace-800 hover:border-slate-600'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-white">{flight.flight_number}</span>
+                      <span className="text-[10px] text-cyan-400">{flight.aircraft_tail}</span>
+                    </div>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${eta.badgeColor}`}>
+                      {eta.badgeText}
+                    </span>
+                  </div>
+
+                  <div className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>STD: {flight.scheduled_departure_display?.replace(' UTC', '') || '10:00 AM'}</span>
+                    <span className="font-semibold text-slate-200">
+                      ETA: {eta.clockTime?.replace(' UTC', '') || '12:28 PM'}
+                    </span>
+                  </div>
+
+                  <div className="text-[10px] mt-1.5 flex items-center justify-between border-t border-aerospace-800/60 pt-1">
+                    <span className="text-slate-500">Estimated Arrival</span>
+                    <span className={`font-semibold ${eta.deltaType === 'delay' ? 'text-rose-400' : eta.deltaType === 'early' ? 'text-emerald-400' : 'text-cyan-400'}`}>
+                      {eta.clockTime} {eta.badgeText}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Missing-Data / Coverage Caution Banner */}
       {routeResult?.found && hasHighUncertainty && (
         <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-800/80 text-amber-200 text-xs flex items-start gap-3 shadow-lg">
@@ -521,10 +629,20 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
             </div>
           </div>
 
+          {/* Estimated Time of Arrival (ETA) with (+delay) or (-early) bracket */}
           <div className="bg-aerospace-900 border border-aerospace-800 rounded-xl p-3">
-            <div className="text-[11px] font-mono text-slate-400">ESTIMATED TIME</div>
-            <div className="text-lg font-bold font-mono text-cyan-300 mt-0.5">
-              {routeResult.totals.estimated_time_min} <span className="text-xs text-slate-400">min</span>
+            <div className="text-[11px] font-mono text-cyan-400 flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" />
+              ESTIMATED TIME OF ARRIVAL (ETA)
+            </div>
+            <div className="text-lg font-bold font-mono text-cyan-300 mt-0.5 flex flex-wrap items-baseline gap-1.5">
+              <span>{primaryEta.clockTime}</span>
+              <span className="text-xs text-slate-400">({routeResult.totals.estimated_time_min} min)</span>
+            </div>
+            <div className="text-[11px] font-mono mt-1">
+              <span className={`px-2 py-0.5 rounded border text-[10px] font-semibold ${primaryEta.badgeColor}`}>
+                {primaryEta.badgeText}
+              </span>
             </div>
           </div>
 
@@ -656,7 +774,7 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
                 <tr>
                   <th className="py-2.5 px-3">Objective</th>
                   <th className="py-2.5 px-3">Distance</th>
-                  <th className="py-2.5 px-3">ETA</th>
+                  <th className="py-2.5 px-3">ETA (Arrival & Status)</th>
                   <th className="py-2.5 px-3">Weather Exp</th>
                   <th className="py-2.5 px-3">Congestion Exp</th>
                   <th className="py-2.5 px-3">Uncertainty</th>
@@ -670,7 +788,26 @@ export const RouteLabView: React.FC<RouteLabViewProps> = ({
                   <tr key={i} className="hover:bg-aerospace-850/50 transition">
                     <td className="py-2.5 px-3 font-semibold text-cyan-300 capitalize">{r.label}</td>
                     <td className="py-2.5 px-3">{r.totals?.distance_km} km</td>
-                    <td className="py-2.5 px-3">{r.totals?.estimated_time_min} min</td>
+                    <td className="py-2.5 px-3">
+                      {(() => {
+                        const altEta = calculateEtaInfo(
+                          r.totals?.estimated_time_min || 0,
+                          baselineTimeMin,
+                          flightDepartureUtc
+                        );
+                        return (
+                          <div>
+                            <div className="font-bold text-white">{altEta.clockTime}</div>
+                            <div className="text-[11px] font-mono flex items-center gap-1 mt-0.5">
+                              <span className="text-slate-400">{r.totals?.estimated_time_min} min</span>
+                              <span className={`px-1.5 py-0.2 rounded border text-[10px] font-semibold ${altEta.badgeColor}`}>
+                                {altEta.badgeText}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </td>
                     <td className="py-2.5 px-3 text-amber-400">{r.totals?.weather_exposure_km} km</td>
                     <td className="py-2.5 px-3 text-rose-400">{r.totals?.congestion_exposure_km} km</td>
                     <td className="py-2.5 px-3 text-purple-300">

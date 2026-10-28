@@ -340,6 +340,18 @@ export const FlightDelayIntelligenceView: React.FC<FlightDelayIntelligenceViewPr
                       <span>Est. Pushback: {new Date(flight.estimated_departure_utc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       <span className="text-cyan-400 font-mono">Inspect ➔</span>
                     </div>
+                    <div className="text-[10px] flex items-center justify-between pt-0.5">
+                      <span className="text-cyan-300 font-semibold">
+                        ETA: {flight.estimated_arrival_display ? flight.estimated_arrival_display.replace(' UTC', '') : (flight.estimated_arrival_utc ? new Date(flight.estimated_arrival_utc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:28 PM')}
+                      </span>
+                      <span className={flight.predicted_delay_minutes > 0 ? 'text-rose-400 font-bold' : 'text-emerald-400 font-bold'}>
+                        {flight.predicted_delay_minutes > 0
+                          ? `(+${Math.round(flight.predicted_delay_minutes)} min delay)`
+                          : flight.predicted_delay_minutes < 0
+                          ? `(-${Math.round(Math.abs(flight.predicted_delay_minutes))} min early)`
+                          : '(On Schedule)'}
+                      </span>
+                    </div>
                   </button>
                 );
               })}

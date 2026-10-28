@@ -31,6 +31,11 @@ class FlightDelayService:
         sched_dep = flight["scheduled_departure_utc"]
         gate_delay = estimate["predicted_delay_minutes"]
         est_dep = sched_dep + timedelta(minutes=gate_delay)
+        sched_arr = estimate.get("scheduled_arrival_utc")
+        est_arr = estimate.get("estimated_arrival_utc")
+        arr_delay = None
+        if sched_arr and est_arr:
+            arr_delay = round((est_arr - sched_arr).total_seconds() / 60.0, 1)
 
         return FlightSummary(
             flight_id=flight["flight_id"],
@@ -48,6 +53,11 @@ class FlightDelayService:
             estimated_departure_utc=est_dep,
             scheduled_departure_display=sched_dep.strftime("%I:%M %p UTC"),
             estimated_departure_display=est_dep.strftime("%I:%M %p UTC"),
+            scheduled_arrival_utc=sched_arr,
+            estimated_arrival_utc=est_arr,
+            scheduled_arrival_display=sched_arr.strftime("%I:%M %p UTC") if sched_arr else None,
+            estimated_arrival_display=est_arr.strftime("%I:%M %p UTC") if est_arr else None,
+            arrival_delay_minutes=arr_delay,
             predicted_delay_minutes=gate_delay,
             delay_interval_min=estimate["delay_interval_min"],
             delay_interval_max=estimate["delay_interval_max"],
@@ -130,8 +140,6 @@ class FlightDelayService:
             **summary.model_dump(),
             estimated_gate_departure_utc=est["estimated_gate_departure_utc"],
             estimated_takeoff_utc=est["estimated_takeoff_utc"],
-            scheduled_arrival_utc=est["scheduled_arrival_utc"],
-            estimated_arrival_utc=est["estimated_arrival_utc"],
             taxi_time_minutes=est["taxi_time_minutes"],
             enroute_time_minutes=f.get("enroute_eta_min", 75.0),
             inbound_aircraft_id=f.get("inbound_flight_id"),

@@ -406,6 +406,11 @@ export interface FlightSummary {
   estimated_departure_utc: string;
   scheduled_departure_display: string;
   estimated_departure_display: string;
+  scheduled_arrival_utc?: string;
+  estimated_arrival_utc?: string;
+  scheduled_arrival_display?: string;
+  estimated_arrival_display?: string;
+  arrival_delay_minutes?: number;
   predicted_delay_minutes: number;
   delay_interval_min: number;
   delay_interval_max: number;

@@ -327,7 +327,20 @@ export const AirspaceMap: React.FC<AirspaceMapProps> = ({
                 <div className="font-mono text-xs">
                   <strong>{primaryRoute.label || 'Active Route'}</strong>
                   <div>Distance: {primaryRoute.totals?.distance_km} km</div>
-                  <div>ETA: {primaryRoute.totals?.estimated_time_min} min</div>
+                  <div>
+                    ETA: {primaryRoute.totals?.estimated_time_min} min{' '}
+                    {(() => {
+                      const baseMin = secondaryRoute?.totals?.estimated_time_min ?? (primaryRoute.totals?.distance_km ? (primaryRoute.totals.distance_km / 800) * 60 : undefined);
+                      const delta = (primaryRoute.totals?.estimated_time_min ?? 0) - (baseMin ?? primaryRoute.totals?.estimated_time_min ?? 0);
+                      return delta > 0.1 ? (
+                        <span className="text-rose-400 font-bold">(+{delta.toFixed(1)}m delay)</span>
+                      ) : delta < -0.1 ? (
+                        <span className="text-emerald-400 font-bold">(-{Math.abs(delta).toFixed(1)}m early)</span>
+                      ) : (
+                        <span className="text-cyan-400">(On Schedule)</span>
+                      );
+                    })()}
+                  </div>
                 </div>
               </Tooltip>
             </Polyline>

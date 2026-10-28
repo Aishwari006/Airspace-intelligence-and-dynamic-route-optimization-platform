@@ -47,6 +47,11 @@ class FlightSummary(BaseModel):
     estimated_departure_utc: datetime
     scheduled_departure_display: str
     estimated_departure_display: str
+    scheduled_arrival_utc: datetime | None = None
+    estimated_arrival_utc: datetime | None = None
+    scheduled_arrival_display: str | None = None
+    estimated_arrival_display: str | None = None
+    arrival_delay_minutes: float | None = None
     predicted_delay_minutes: float
     delay_interval_min: float
     delay_interval_max: float
@@ -63,8 +68,6 @@ class FlightDetail(FlightSummary):
     """Full flight record including stage timeline, factor decomposition, and en-route context."""
     estimated_gate_departure_utc: datetime
     estimated_takeoff_utc: datetime
-    scheduled_arrival_utc: datetime
-    estimated_arrival_utc: datetime
     taxi_time_minutes: float
     enroute_time_minutes: float
     inbound_aircraft_id: str | None = None
