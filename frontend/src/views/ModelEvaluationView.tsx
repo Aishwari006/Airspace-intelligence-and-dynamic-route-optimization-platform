@@ -39,15 +39,34 @@ export const ModelEvaluationView: React.FC<ModelEvaluationViewProps> = ({ models
 
   useEffect(() => { void loadMetrics(); }, []);
 
-  const congestionSection = findNamedSection(metrics, ['congestion']) || asRecord(modelsStatus?.congestion_model?.metrics) || null;
-  const etaSection = findNamedSection(metrics, ['eta', 'regression']) || asRecord(modelsStatus?.eta_model?.metrics) || null;
+  const congestionModel = modelsStatus?.congestion_model;
+  const etaModel = modelsStatus?.eta_model;
 
-  const classifierAccuracy = findMetric(congestionSection, ['test_accuracy', 'accuracy', 'accuracy_score']);
-  const classifierBalanced = findMetric(congestionSection, ['balanced_accuracy', 'balanced_acc']);
-  const classifierF1 = findMetric(congestionSection, ['macro_f1', 'f1_macro', 'macro_f1_score']);
-  const etaMae = findMetric(etaSection, ['test_mae', 'mae', 'mean_absolute_error']);
-  const etaRmse = findMetric(etaSection, ['test_rmse', 'rmse', 'root_mean_squared_error']);
-  const etaR2 = findMetric(etaSection, ['test_r2', 'r2', 'r2_score', 'r_squared']);
+  const rawCongestion = asRecord(asRecord(metrics)?.congestion);
+  const rawEta = asRecord(asRecord(metrics)?.eta);
+  const rawSelected = asRecord(asRecord(metrics)?.selected);
+
+  // Active loaded / selected model metrics
+  const activeCongMetrics = asRecord(congestionModel?.metrics) ||
+    asRecord(rawSelected?.congestion) ||
+    asRecord(asRecord(rawCongestion?.random_forest)?.test) ||
+    asRecord(rawCongestion?.random_forest) ||
+    findNamedSection(metrics, ['congestion']) ||
+    null;
+
+  const activeEtaMetrics = asRecord(etaModel?.metrics) ||
+    asRecord(rawSelected?.eta) ||
+    asRecord(asRecord(rawEta?.random_forest)?.test) ||
+    asRecord(rawEta?.random_forest) ||
+    findNamedSection(metrics, ['eta', 'regression']) ||
+    null;
+
+  const classifierAccuracy = findMetric(activeCongMetrics, ['test_accuracy', 'accuracy', 'accuracy_score']);
+  const classifierBalanced = findMetric(activeCongMetrics, ['balanced_accuracy', 'balanced_acc']);
+  const classifierF1 = findMetric(activeCongMetrics, ['macro_f1', 'f1_macro', 'macro_f1_score']);
+  const etaMae = findMetric(activeEtaMetrics, ['test_mae', 'mae_min', 'mae', 'mean_absolute_error']);
+  const etaRmse = findMetric(activeEtaMetrics, ['test_rmse', 'rmse_min', 'rmse', 'root_mean_squared_error']);
+  const etaR2 = findMetric(activeEtaMetrics, ['test_r2', 'r2', 'r2_score', 'r_squared']);
   const classificationCandidates = findCandidateMetricRows(metrics, 'classification');
   const regressionCandidates = findCandidateMetricRows(metrics, 'regression');
 
@@ -68,8 +87,6 @@ export const ModelEvaluationView: React.FC<ModelEvaluationViewProps> = ({ models
     }
   };
 
-  const congestionModel = modelsStatus?.congestion_model;
-  const etaModel = modelsStatus?.eta_model;
   const reportAvailable = metrics !== null && metrics !== undefined;
 
   return (

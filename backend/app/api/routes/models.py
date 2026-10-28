@@ -124,9 +124,16 @@ def get_model_evaluation_metrics() -> dict[str, Any]:
         except Exception:
             pass
 
+    c_best = congestion_metrics.get("random_forest", {}).get("test", {})
+    e_best = eta_metrics.get("random_forest", {}).get("test", {})
+
     return {
         "congestion": congestion_metrics,
         "eta": eta_metrics,
+        "selected": {
+            "congestion": c_best,
+            "eta": e_best,
+        },
     }
 
 
