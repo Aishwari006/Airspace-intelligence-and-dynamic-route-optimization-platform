@@ -24,13 +24,15 @@ def generate_explanation(req: ExplanationRequest) -> ExplanationResponse:
 
 @router.get("/status")
 def get_explanation_engine_status() -> dict[str, Any]:
-    """Returns whether local Ollama & Phi-3 are active or if deterministic fallback is running."""
+    """Returns whether Google Gemini API is configured or if deterministic fallback is running."""
     settings = get_settings()
-    is_available = service.check_ollama_availability()
+    gemini_up = service.check_gemini_availability()
     return {
-        "ollama_available": is_available,
-        "active_engine": settings.ollama_model if is_available else "deterministic_fallback",
-        "model_name": settings.ollama_model,
-        "ollama_url": settings.ollama_base_url,
+        "gemini_available": gemini_up,
+        "ollama_available": gemini_up,  # Kept for backward compatibility
+        "active_engine": settings.gemini_model if gemini_up else "deterministic_fallback",
+        "model_name": settings.gemini_model,
+        "endpoint": settings.gemini_base_url,
+        "ollama_url": settings.gemini_base_url,
     }
 

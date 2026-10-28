@@ -65,12 +65,14 @@ export const ExplanationPanel: React.FC<ExplanationPanelProps> = ({
           <div className="flex items-center gap-2">
             <span
               className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                explanation.engine === 'phi3:latest'
+                explanation.engine.toLowerCase().includes('gemini') || explanation.engine === 'phi3:latest'
                   ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
                   : 'bg-amber-950 text-amber-300 border-amber-800'
               }`}
             >
-              {explanation.engine === 'phi3:latest'
+              {explanation.engine.toLowerCase().includes('gemini')
+                ? 'AI Synthesis (Google Gemini API)'
+                : explanation.engine === 'phi3:latest'
                 ? 'AI Synthesis (Phi-3 via Ollama)'
                 : 'Deterministic Fallback Engine'}
             </span>
@@ -83,7 +85,7 @@ export const ExplanationPanel: React.FC<ExplanationPanelProps> = ({
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 text-[11px] font-bold transition disabled:opacity-50"
           >
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            {loading ? 'Synthesizing...' : 'Query Phi-3 Reasoner'}
+            {loading ? 'Synthesizing...' : 'Query Gemini AI Reasoner'}
           </button>
         )}
       </div>

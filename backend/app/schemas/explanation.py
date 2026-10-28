@@ -25,9 +25,10 @@ class ExplanationResponse(BaseModel):
     summary: str
     supporting_facts: list[str] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
-    engine: str = Field(..., description="'phi3:latest' or 'deterministic_fallback'")
+    engine: str = Field(..., description="'gemini-1.5-flash', 'phi3:latest', or 'deterministic_fallback'")
     model_name: str
-    ollama_available: bool
+    ollama_available: bool = Field(default=False, description="Kept for backward compatibility")
+    gemini_available: bool = Field(default=False, description="True when Gemini API is active")
     latency_ms: float
     disclaimer: str = (
         "AI explanation of verified computations. Research prototype only - not an operational clearance."

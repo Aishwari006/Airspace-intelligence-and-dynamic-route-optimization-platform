@@ -83,10 +83,16 @@ class Settings(BaseSettings):
     # Upload limit for observation file import (configurable via SKYFORCE_MAX_UPLOAD_BYTES)
     max_upload_bytes: int = 25 * 1024 * 1024
 
-    # LLM Explanation Service (configurable via SKYFORCE_OLLAMA_BASE_URL, etc.)
+    # LLM Explanation Service via Google Gemini API (replacing Ollama)
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-1.5-flash"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    gemini_timeout_s: float = 6.0
+
+    # Retained for backwards compatibility
     ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "phi3:latest"
-    ollama_timeout_s: float = 4.0
+    ollama_model: str = "gemini-1.5-flash"
+    ollama_timeout_s: float = 6.0
 
     @property
     def artifacts_dir(self) -> Path:

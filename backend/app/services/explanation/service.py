@@ -1,6 +1,7 @@
-"""Explanation Service integrating Phi-3 via ChatOllama with deterministic fallback."""
+"""Explanation Service integrating Google Gemini API with deterministic fallback."""
 from __future__ import annotations
 
+import os
 import time
 from typing import Any
 import httpx
@@ -17,39 +18,30 @@ class ExplanationService:
     def __init__(self, settings: Settings | None = None):
         self.settings = settings or get_settings()
 
+    def get_api_key(self) -> str | None:
+        """Resolves Gemini API key from settings or environment variables."""
+        return (
+            self.settings.gemini_api_key
+            or os.environ.get("SKYFORCE_GEMINI_API_KEY")
+            or os.environ.get("GEMINI_API_KEY")
+        )
+
+    def check_gemini_availability(self) -> bool:
+        """Returns True if a valid-length Gemini API key is configured."""
+        key = self.get_api_key()
+        return bool(key and len(key.strip()) > 8)
+
     def check_ollama_availability(self) -> bool:
-        """Fast non-blocking probe to verify Ollama server and model availability."""
-        try:
-            with httpx.Client(timeout=1.5) as client:
-                resp = client.get(f"{self.settings.ollama_base_url}/api/tags")
-                if resp.status_code == 200:
-                    models_data = resp.json().get("models", [])
-                    names = [m.get("name") for m in models_data]
-                    # Check if requested model or matching prefix exists
-                    target = self.settings.ollama_model
-                    has_model = any(target in n for n in names if n)
-                    return True  # Server is up; model can be called or pulled
-        except Exception:
-            return False
-        return False
+        """Backward-compatible alias pointing to active AI availability."""
+        return self.check_gemini_availability()
 
     def explain(self, task: str, context: dict[str, Any], query: str | None = None) -> ExplanationResponse:
         """Generates evidence-grounded natural language explanation with automatic fallback."""
         t0 = time.time()
-        ollama_up = self.check_ollama_availability()
+        api_key = self.get_api_key()
 
-        if ollama_up:
+        if api_key and len(api_key.strip()) > 8:
             try:
-                from langchain_ollama import ChatOllama
-                from langchain_core.messages import SystemMessage, HumanMessage
-
-                llm = ChatOllama(
-                    model=self.settings.ollama_model,
-                    base_url=self.settings.ollama_base_url,
-                    temperature=0.1,
-                    timeout=self.settings.ollama_timeout_s,
-                )
-
                 if task == "route":
                     user_prompt = build_route_prompt(context, query)
                 elif task in ["quality", "dataset"]:
@@ -57,35 +49,66 @@ class ExplanationService:
                 else:
                     user_prompt = f"Explain the following aviation intelligence data for task '{task}':\n{context}"
 
-                messages = [
-                    SystemMessage(content=SYSTEM_PROMPT),
-                    HumanMessage(content=user_prompt),
-                ]
+                model_name = self.settings.gemini_model or "gemini-1.5-flash"
+                base_url = self.settings.gemini_base_url.rstrip("/")
+                endpoint = f"{base_url}/models/{model_name}:generateContent?key={api_key.strip()}"
 
-                res = llm.invoke(messages)
-                text = str(res.content).strip()
-                elapsed_ms = round((time.time() - t0) * 1000, 2)
-
-                # Extract supporting bullet points if present
-                lines = [line.strip("- *").strip() for line in text.split("\n") if line.strip().startswith(("-", "*", "1.", "2.", "3."))]
-                if not lines:
-                    lines = [s.strip() for s in text.split(". ") if len(s.strip()) > 15][:4]
-
-                return ExplanationResponse(
-                    task=task,
-                    summary=text.split("\n\n")[0],
-                    supporting_facts=lines[:5],
-                    limitations=[
-                        "Inference based on synthetic candidate airspace network.",
-                        "Research decision-support proxy; not an air traffic control clearance.",
+                payload = {
+                    "system_instruction": {
+                        "parts": [{"text": SYSTEM_PROMPT}]
+                    },
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [{"text": user_prompt}]
+                        }
                     ],
-                    engine=self.settings.ollama_model,
-                    model_name=self.settings.ollama_model,
-                    ollama_available=True,
-                    latency_ms=elapsed_ms,
-                )
+                    "generationConfig": {
+                        "temperature": 0.2,
+                        "maxOutputTokens": 1024,
+                    }
+                }
+
+                with httpx.Client(timeout=self.settings.gemini_timeout_s) as client:
+                    resp = client.post(endpoint, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts", [])
+                            text = "".join(p.get("text", "") for p in parts).strip()
+                            if text:
+                                elapsed_ms = round((time.time() - t0) * 1000, 2)
+                                lines = [
+                                    line.strip("- *").strip()
+                                    for line in text.split("\n")
+                                    if line.strip().startswith(("-", "*", "1.", "2.", "3.", "•"))
+                                ]
+                                if not lines:
+                                    lines = [s.strip() for s in text.split(". ") if len(s.strip()) > 15][:4]
+
+                                return ExplanationResponse(
+                                    task=task,
+                                    summary=text.split("\n\n")[0],
+                                    supporting_facts=lines[:5],
+                                    limitations=[
+                                        "Inference generated via Google Gemini API based on verified candidate airspace network.",
+                                        "Research decision-support proxy; not an air traffic control clearance.",
+                                    ],
+                                    engine=model_name,
+                                    model_name=f"Google {model_name}",
+                                    ollama_available=True,
+                                    gemini_available=True,
+                                    latency_ms=elapsed_ms,
+                                )
+                    else:
+                        logger.warning(
+                            "Gemini API returned status %s (%s); engaging deterministic fallback.",
+                            resp.status_code,
+                            resp.text[:120],
+                        )
             except Exception as exc:
-                logger.warning("Ollama inference failed or timed out (%s); engaging deterministic fallback.", exc)
+                logger.warning("Gemini inference failed or timed out (%s); engaging deterministic fallback.", exc)
 
         # ------------------------------------------------ Deterministic Fallback Engine
         return self._deterministic_fallback(task, context, query, t0)
@@ -93,7 +116,7 @@ class ExplanationService:
     def _deterministic_fallback(
         self, task: str, context: dict[str, Any], query: str | None, t0: float
     ) -> ExplanationResponse:
-        """Rule-based factual synthesizer when LLM is offline or timed out."""
+        """Rule-based factual synthesizer when LLM is offline, timed out, or using placeholder key."""
         elapsed_ms = round((time.time() - t0) * 1000, 2)
 
         if task == "route":
@@ -150,12 +173,13 @@ class ExplanationService:
                 summary=summary,
                 supporting_facts=facts,
                 limitations=[
-                    "Deterministic fallback engine active (local Ollama/phi3 offline or unavailable).",
+                    "Deterministic fallback engine active (Gemini API offline, rate-limited, or placeholder key).",
                     "Computed over research candidate network - not an operational clearance.",
                 ],
                 engine="deterministic_fallback",
                 model_name="deterministic_rules_v1",
                 ollama_available=False,
+                gemini_available=False,
                 latency_ms=elapsed_ms,
             )
 
@@ -180,6 +204,7 @@ class ExplanationService:
                 engine="deterministic_fallback",
                 model_name="deterministic_rules_v1",
                 ollama_available=False,
+                gemini_available=False,
                 latency_ms=elapsed_ms,
             )
 
@@ -191,6 +216,6 @@ class ExplanationService:
             engine="deterministic_fallback",
             model_name="deterministic_rules_v1",
             ollama_available=False,
+            gemini_available=False,
             latency_ms=elapsed_ms,
         )
-

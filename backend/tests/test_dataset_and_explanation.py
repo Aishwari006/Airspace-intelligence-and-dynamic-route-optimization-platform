@@ -159,5 +159,5 @@ def test_explanation_service(client: TestClient):
     assert "summary" in exp_data
     assert len(exp_data["summary"]) > 10
     assert len(exp_data["supporting_facts"]) > 0
-    assert exp_data["engine"] in ["phi3:latest", "deterministic_fallback"]
+    assert exp_data["engine"] in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-3.8-flash", "phi3:latest", "deterministic_fallback"]
 

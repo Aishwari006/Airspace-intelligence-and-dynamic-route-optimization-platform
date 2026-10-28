@@ -330,16 +330,19 @@ export interface ExplanationResponse {
   limitations: string[];
   engine: string;
   model_name: string;
-  ollama_available: boolean;
+  ollama_available?: boolean;
+  gemini_available?: boolean;
   latency_ms: number;
   disclaimer: string;
 }
 
 export interface ExplanationEngineStatus {
-  ollama_available: boolean;
+  ollama_available?: boolean;
+  gemini_available?: boolean;
   active_engine: string;
   model_name: string;
-  ollama_url: string;
+  ollama_url?: string;
+  endpoint?: string;
 }
 
 export interface WeatherObservationItem {
