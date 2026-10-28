@@ -108,17 +108,19 @@ export const AirspaceMap: React.FC<AirspaceMapProps> = ({
           />
           <span>Airway Edges ({edges.length})</span>
         </label>
-        <label className="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
-          <input
-            type="checkbox"
-            checked={showWeather}
-            onChange={(e) => setShowWeather(e.target.checked)}
-            className="rounded bg-aerospace-950 border-aerospace-700 text-amber-500 focus:ring-0"
-          />
-          <span className="flex items-center gap-1">
-            <CloudRain className="w-3 h-3 text-amber-400" /> Weather Hazards
-          </span>
-        </label>
+        {weatherCells && weatherCells.length > 0 && (
+          <label className="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
+            <input
+              type="checkbox"
+              checked={showWeather}
+              onChange={(e) => setShowWeather(e.target.checked)}
+              className="rounded bg-aerospace-950 border-aerospace-700 text-amber-500 focus:ring-0"
+            />
+            <span className="flex items-center gap-1">
+              <CloudRain className="w-3 h-3 text-amber-400" /> Weather Hazards
+            </span>
+          </label>
+        )}
         <label className="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white">
           <input
             type="checkbox"

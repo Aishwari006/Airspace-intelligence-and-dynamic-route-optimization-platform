@@ -650,18 +650,20 @@ export const Airspace3DMap: React.FC<Airspace3DMapProps> = ({
           <Layers className="w-3 h-3" />
           <span>3D Congestion ({mapCongestionCells.length})</span>
         </button>
-        <button
-          type="button"
-          onClick={() => setShowWeather3D(!showWeather3D)}
-          className={`px-2.5 py-1 rounded border transition flex items-center gap-1 ${
-            showWeather3D
-              ? 'bg-amber-950/70 border-amber-600 text-amber-300'
-              : 'bg-aerospace-950 border-aerospace-700 text-slate-400'
-          }`}
-        >
-          <CloudRain className="w-3 h-3" />
-          <span>3D Weather</span>
-        </button>
+        {weatherCells && weatherCells.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowWeather3D(!showWeather3D)}
+            className={`px-2.5 py-1 rounded border transition flex items-center gap-1 ${
+              showWeather3D
+                ? 'bg-amber-950/70 border-amber-600 text-amber-300'
+                : 'bg-aerospace-950 border-aerospace-700 text-slate-400'
+            }`}
+          >
+            <CloudRain className="w-3 h-3" />
+            <span>3D Weather</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setShowAirways(!showAirways)}
