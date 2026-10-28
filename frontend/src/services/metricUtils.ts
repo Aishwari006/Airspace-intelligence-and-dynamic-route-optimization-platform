@@ -86,6 +86,7 @@ export function findCandidateMetricRows(source: unknown, task: 'classification' 
     if (depth < 0 || value === null || typeof value !== 'object' || visited.has(value)) return;
     visited.add(value);
 
+    // Case 1: Array of candidate objects
     if (Array.isArray(value)) {
       const rows = value.flatMap((item): CandidateMetricRow[] => {
         const row = asRecord(item);
@@ -97,8 +98,8 @@ export function findCandidateMetricRows(source: unknown, task: 'classification' 
           accuracy: findMetric(row, ['test_accuracy', 'accuracy', 'accuracy_score']),
           balancedAccuracy: findMetric(row, ['balanced_accuracy', 'balanced_acc']),
           macroF1: findMetric(row, ['macro_f1', 'f1_macro', 'macro_f1_score']),
-          mae: findMetric(row, ['test_mae', 'mae', 'mean_absolute_error']),
-          rmse: findMetric(row, ['test_rmse', 'rmse', 'root_mean_squared_error']),
+          mae: findMetric(row, ['test_mae', 'mae_min', 'mae', 'mean_absolute_error']),
+          rmse: findMetric(row, ['test_rmse', 'rmse_min', 'rmse', 'root_mean_squared_error']),
           r2: findMetric(row, ['test_r2', 'r2', 'r2_score', 'r_squared']),
         };
         const hasTaskMetrics = task === 'classification'
@@ -111,7 +112,45 @@ export function findCandidateMetricRows(source: unknown, task: 'classification' 
       return;
     }
 
-    Object.values(value as JsonRecord).forEach((item) => inspect(item, depth - 1));
+    // Case 2: Object where keys are candidate names (e.g. { dummy_most_frequent: { test: {...} }, random_forest: { test: {...} } })
+    const record = value as JsonRecord;
+    const entries = Object.entries(record);
+    const candidateEntries = entries.filter(([, val]) => {
+      if (!val || typeof val !== 'object' || Array.isArray(val)) return false;
+      const vRec = val as JsonRecord;
+      return (
+        'validation' in vRec ||
+        'test' in vRec ||
+        'accuracy' in vRec ||
+        'macro_f1' in vRec ||
+        'mae_min' in vRec ||
+        'rmse_min' in vRec ||
+        'r2' in vRec
+      );
+    });
+
+    if (candidateEntries.length >= 2) {
+      const rows = candidateEntries.flatMap(([rawName, candidateObj]): CandidateMetricRow[] => {
+        const cRec = candidateObj as JsonRecord;
+        const targetSplit = asRecord(cRec.test) || asRecord(cRec.validation) || cRec;
+        const parsed: CandidateMetricRow = {
+          name: rawName,
+          accuracy: findMetric(targetSplit, ['test_accuracy', 'accuracy', 'accuracy_score']),
+          balancedAccuracy: findMetric(targetSplit, ['balanced_accuracy', 'balanced_acc']),
+          macroF1: findMetric(targetSplit, ['macro_f1', 'f1_macro', 'macro_f1_score']),
+          mae: findMetric(targetSplit, ['test_mae', 'mae_min', 'mae', 'mean_absolute_error']),
+          rmse: findMetric(targetSplit, ['test_rmse', 'rmse_min', 'rmse', 'root_mean_squared_error']),
+          r2: findMetric(targetSplit, ['test_r2', 'r2', 'r2_score', 'r_squared']),
+        };
+        const hasTaskMetrics = task === 'classification'
+          ? parsed.accuracy !== null || parsed.balancedAccuracy !== null || parsed.macroF1 !== null
+          : parsed.mae !== null || parsed.rmse !== null || parsed.r2 !== null;
+        return hasTaskMetrics ? [parsed] : [];
+      });
+      if (rows.length) matchingArrays.push(rows);
+    }
+
+    Object.values(record).forEach((item) => inspect(item, depth - 1));
   };
 
   inspect(source, 5);

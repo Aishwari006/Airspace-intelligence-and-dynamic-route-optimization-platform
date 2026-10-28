@@ -129,9 +129,15 @@ def congestion_candidates(seed: int) -> dict[str, Pipeline]:
         "logistic_regression": Pipeline([("prep", _preprocessor(NUMERIC_FEATURES, CATEGORICAL_FEATURES, True)),
                                          ("clf", LogisticRegression(max_iter=3000, class_weight="balanced", C=1.0))]),
         "random_forest": Pipeline([("prep", _preprocessor(NUMERIC_FEATURES, CATEGORICAL_FEATURES, False)),
-                                   ("clf", RandomForestClassifier(n_estimators=200, max_depth=16, min_samples_leaf=3,
-                                                                  class_weight="balanced_subsample", n_jobs=-1,
+                                   ("clf", RandomForestClassifier(n_estimators=400, max_depth=18, min_samples_leaf=3,
+                                                                  max_features=0.45,
+                                                                  class_weight={"LOW": 1.0, "MEDIUM": 2.5, "HIGH": 5.0},
+                                                                  n_jobs=-1,
                                                                   random_state=seed))]),
+        "random_forest_balanced": Pipeline([("prep", _preprocessor(NUMERIC_FEATURES, CATEGORICAL_FEATURES, False)),
+                                            ("clf", RandomForestClassifier(n_estimators=300, max_depth=16, min_samples_leaf=3,
+                                                                           class_weight="balanced_subsample", n_jobs=-1,
+                                                                           random_state=seed))]),
         "hist_gradient_boosting": Pipeline([("prep", _preprocessor(NUMERIC_FEATURES, CATEGORICAL_FEATURES, False)),
                                             ("clf", HistGradientBoostingClassifier(max_iter=250, learning_rate=0.08,
                                                                                    class_weight="balanced",
@@ -239,9 +245,11 @@ def regression_metrics(y, p) -> dict[str, Any]:  # noqa: ANN001
     p = np.asarray(p, dtype=float)
     err = p - y
     hist, edges = np.histogram(np.abs(err), bins=[0, 0.5, 1, 2, 3, 5, 8, 12, 1e9])
+    abs_err = np.abs(err)
     return {
         "n": int(len(y)), "mae_min": float(mean_absolute_error(y, p)),
         "rmse_min": float(np.sqrt(mean_squared_error(y, p))), "r2": float(r2_score(y, p)),
+        "median_abs_error_min": float(np.median(abs_err)),
         "bias_min": float(err.mean()),
         "abs_error_histogram": [{"bin_min": f"{edges[i]:g}-{'inf' if edges[i + 1] > 1e8 else f'{edges[i + 1]:g}'}",
                                  "count": int(h)} for i, h in enumerate(hist)],
@@ -269,12 +277,29 @@ def train_eta(df: pd.DataFrame, bounds: SplitBoundaries, seed: int, heuristic_sp
     cands = {
         "median_baseline": Pipeline([("prep", _preprocessor(ETA_NUMERIC, [], False)), ("reg", DummyRegressor(strategy="median"))]),
         "ridge": Pipeline([("prep", _preprocessor(ETA_NUMERIC, [], True)), ("reg", Ridge(alpha=1.0))]),
+        # Random Forest variants
         "random_forest": Pipeline([("prep", _preprocessor(ETA_NUMERIC, [], False)),
-                                   ("reg", RandomForestRegressor(n_estimators=200, max_depth=18, min_samples_leaf=2,
-                                                                 n_jobs=-1, random_state=seed))]),
+                                   ("reg", RandomForestRegressor(n_estimators=300, max_depth=22, min_samples_leaf=2,
+                                                                 max_features=0.85, n_jobs=-1, random_state=seed))]),
+        "random_forest_400_24_0.90": Pipeline([("prep", _preprocessor(ETA_NUMERIC, [], False)),
+                                               ("reg", RandomForestRegressor(n_estimators=400, max_depth=24,
+                                                                             min_samples_leaf=2,
+                                                                             max_features=0.90, n_jobs=-1,
+                                                                             random_state=seed))]),
+        "random_forest_500_26_0.95": Pipeline([("prep", _preprocessor(ETA_NUMERIC, [], False)),
+                                               ("reg", RandomForestRegressor(n_estimators=500, max_depth=26,
+                                                                             min_samples_leaf=2,
+                                                                             max_features=0.95, n_jobs=-1,
+                                                                             random_state=seed))]),
+        # Hist Gradient Boosting variants
         "hist_gradient_boosting": Pipeline([("prep", _preprocessor(ETA_NUMERIC, [], False)),
                                             ("reg", HistGradientBoostingRegressor(max_iter=400, learning_rate=0.06,
                                                                                   early_stopping=False, random_state=seed))]),
+        "hist_gradient_boosting_600_0.05": Pipeline([("prep", _preprocessor(ETA_NUMERIC, [], False)),
+                                                    ("reg", HistGradientBoostingRegressor(max_iter=600,
+                                                                                          learning_rate=0.05,
+                                                                                          early_stopping=False,
+                                                                                          random_state=seed))]),
     }
     results: dict[str, Any] = {
         "heuristic_distance_over_speed": {
@@ -291,7 +316,7 @@ def train_eta(df: pd.DataFrame, bounds: SplitBoundaries, seed: int, heuristic_sp
         results[name] = {"fit_seconds": round(time.perf_counter() - t, 2),
                          "validation": regression_metrics(yva, pipe.predict(Xva)),
                          "test": regression_metrics(yte, pipe.predict(Xte))}
-    selectable = ["ridge", "random_forest", "hist_gradient_boosting"]
+    selectable = [n for n in cands if not n.startswith("median")]
     best = min(selectable, key=lambda n: results[n]["validation"]["mae_min"])
     model = fitted[best]
     pred_te = model.predict(Xte)
